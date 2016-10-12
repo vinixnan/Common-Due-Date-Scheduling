@@ -18,15 +18,39 @@ public class Scheduling {
     protected int size;
     protected ArrayList<Job> baseJobs;
     private double h;
+    private Job[][] data;
+    int k;
 
     public Scheduling(int size, double h) {
         this.size = size;
         this.baseJobs = null;
-        this.h=h;
+        this.h = h;
+        this.data = null;
     }
 
-    public void readFromFile() {
-        this.baseJobs = FileUtils.getDataFromTextFile("data/sch" + this.size + ".txt");
+    public void readDataFromFile() {
+        this.data = FileUtils.getDataFromTextFile("data/sch" + this.size + ".txt");
+        this.k = 0;
+    }
+    
+    public boolean readNextProblem() {
+        if(this.k < this.data.length){
+            this.baseJobs=new ArrayList<Job>(Arrays.asList(this.data[k++]));
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
+    public void printAllData() {
+        for (int i = 0; i < this.data.length; i++) {
+            System.out.println("K=" + (i + 1));
+            for (int j = 0; j < this.data[i].length; j++) {
+                Job tempJob = this.data[i][j];
+                System.out.println("Tempo do job " + tempJob.getOrderId() + ": " + tempJob.getProcessingTime() + ", " + tempJob.getEarliness() + ", " + tempJob.getTardiness());
+            }
+        }
     }
 
     public int getSize() {
@@ -53,8 +77,8 @@ public class Scheduling {
         return sum_p;
     }
 
-    public int[][] generateTimes(int d, ArrayList<Job> jobs) {
-        int previousTime = 0;
+    public int[][] generateTimes(int d, int idle, ArrayList<Job> jobs) {
+        int previousTime = idle;
         int[][] allvalues = new int[3][jobs.size()];
         Arrays.fill(allvalues[0], 0);//completionTime
         Arrays.fill(allvalues[1], 0);//earliness
@@ -68,8 +92,8 @@ public class Scheduling {
         return allvalues;
     }
 
-    public double getPenalty(int d, ArrayList<Job> jobs) {
-        int[][] allvalues = this.generateTimes(d, jobs);
+    public double getPenalty(int d, int idle, ArrayList<Job> jobs) {
+        int[][] allvalues = this.generateTimes(d, idle, jobs);
         double sum = 0;
         for (int i = 0; i < jobs.size(); i++) {
             Job j = jobs.get(i);
@@ -83,11 +107,11 @@ public class Scheduling {
     }
 
     public int[][] generateTimes(int d) {
-        return this.generateTimes(d, baseJobs);
+        return this.generateTimes(d, 0, baseJobs);
     }
 
     public double getPenalty(int d) {
-        return this.getPenalty(d, baseJobs);
+        return this.getPenalty(d, 0, baseJobs);
     }
 
     public String getOrderAsString(ArrayList<Job> jobs) {
@@ -97,12 +121,12 @@ public class Scheduling {
         }
         return order.trim();
     }
-    
-    public void printStatus(ArrayList<Job> jobs){
+
+    public void printStatus(ArrayList<Job> jobs) {
         double SUM_P = this.getSum_P(jobs);
         int d = (int) Math.round(SUM_P * h);
-        double minSum = this.getPenalty(d,jobs); //a fazer: mtodo que calcula a penalidade dos jobs
-        System.out.println("Sum "+SUM_P + " D=" + d+" Fitness="+minSum);
+        double minSum = this.getPenalty(d, 0, jobs); //a fazer: mtodo que calcula a penalidade dos jobs
+        System.out.println("Sum " + SUM_P + " D=" + d + " Fitness=" + minSum);
         System.out.println(this.getOrderAsString(jobs));
 
     }

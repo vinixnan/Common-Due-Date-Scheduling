@@ -1,6 +1,7 @@
-package br.usp.lti.cdds;
+package br.usp.lti.cdds.util;
 
 
+import br.usp.lti.cdds.Job;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;

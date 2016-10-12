@@ -1,12 +1,25 @@
 package br.usp.lti.cdds;
 
-
 public class Job {
 
     private int processingTime;
     private int earliness;
     private int tardiness;
     private int orderId;
+
+    public Job(int orderId, int processingTime, int earliness, int tardiness) {
+        this.processingTime = processingTime;
+        this.earliness = earliness;
+        this.tardiness = tardiness;
+        this.orderId = orderId;
+    }
+
+    public Job() {
+        this.processingTime = 0;
+        this.earliness = 0;
+        this.tardiness = 0;
+        this.orderId = 0;
+    }
 
     public int getProcessingTime() {
         return processingTime;
@@ -38,5 +51,17 @@ public class Job {
 
     public void setOrderId(int orderId) {
         this.orderId = orderId;
+    }
+    
+    public double betaAlpha(){
+        return ((double)this.tardiness)/((double)this.earliness);
+    }
+    
+    public double processingAlpha(){
+        return ((double)this.processingTime)/((double)this.earliness);
+    }
+    
+    public double processingBeta(){
+        return ((double)this.processingTime)/((double)this.tardiness);
     }
 }

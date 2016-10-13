@@ -16,7 +16,16 @@ public class BetaAlphaComparator implements Comparator<Job> {
 
     @Override
     public int compare(Job o1, Job o2) {
-        if(o1.betaAlpha() > o2.betaAlpha())
+        
+        if(o1.betaAlpha() == o2.betaAlpha()){
+            if(o1.getTardiness() > o2.getTardiness()){
+                return -1;
+            }
+            else if(o1.getTardiness() < o2.getTardiness()){
+                return 1;
+            }
+        }
+        else if(o1.betaAlpha() > o2.betaAlpha())
             return -1;
         else if(o1.betaAlpha() < o2.betaAlpha())
             return 1;

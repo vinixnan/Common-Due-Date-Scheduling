@@ -28,7 +28,7 @@ public class HeuristicII extends Scheduling {
         this.orderedSet = new ArrayList<>();
         this.paB = new ArrayList<>(baseJobs);
         Collections.sort(this.paB, new BetaAlphaComparator());
-        int maxSize = this.baseJobs.size() / 2;
+        int maxSize = this.baseJobs.size() / 1;
 
         Job j = this.paB.get(0);
         this.orderedSet.add(j);

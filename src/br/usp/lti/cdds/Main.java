@@ -15,7 +15,7 @@ public class Main {
         int[] sums = new int[10];
         for (int i = 0; i < hs.length; i++) {
             double h = hs[i];
-            HeuristicII sdh = new HeuristicII(size, h);
+            ConstructionHeuristic sdh = new ConstructionHeuristic(size, h);
             sdh.readDataFromFile();
             int j = 0;
             while (sdh.readNextProblem()) {

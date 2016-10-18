@@ -15,12 +15,12 @@ import java.util.Collections;
  *
  * @author vinicius
  */
-public class HeuristicII extends Scheduling {
+public class ConstructionHeuristic extends Scheduling {
 
     private ArrayList<Job> paB;
     private ArrayList<Job> orderedSet;//B Set
 
-    public HeuristicII(int size, double h) {
+    public ConstructionHeuristic(int size, double h) {
         super(size, h);
     }
 
@@ -28,14 +28,13 @@ public class HeuristicII extends Scheduling {
         this.orderedSet = new ArrayList<>();
         this.paB = new ArrayList<>(baseJobs);
         Collections.sort(this.paB, new BetaAlphaComparator());
-        int maxSize = this.baseJobs.size() / 1;
 
         Job j = this.paB.get(0);
         this.orderedSet.add(j);
         int processingTimeSum = this.getSum_P(orderedSet);
         int gap = d - processingTimeSum;
 
-        while (this.orderedSet.size() < maxSize && gap > 0) {
+        while (gap > 0) {
             this.paB.remove(0);
             j = this.paB.get(0);
             this.orderedSet.add(j);

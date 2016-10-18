@@ -10,7 +10,7 @@ public class TestMain {
         
         ArrayList<Job> stubJobs=new ArrayList<>();
         double h=0.2;
-        HeuristicII sdh=new HeuristicII(8,h);
+        ConstructionHeuristic sdh=new ConstructionHeuristic(8,h);
         
         //EXAMPLE FROM ARTICLE ORDERED
         stubJobs=new ArrayList<>();

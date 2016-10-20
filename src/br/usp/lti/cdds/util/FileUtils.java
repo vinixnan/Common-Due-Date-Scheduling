@@ -5,6 +5,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -72,5 +74,24 @@ public class FileUtils {
         } finally {
             br.close();
         }
+    }
+    
+    public static int[][] readBenchMark(String benchmarkdir){
+        int[][] toReturn=new int[10][4];
+        try {
+            String readed=FileUtils.readFile(benchmarkdir);
+            String[] lines=readed.split("\n");
+            int k=0;
+            for(String line : lines){
+                String[] numbers=line.split(";");
+                for(int h=0; h < numbers.length; h++){
+                    toReturn[k][h]=Integer.parseInt(numbers[h]);
+                }
+                k++;
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(FileUtils.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return toReturn;
     }
 }

@@ -19,6 +19,7 @@ public class Scheduling {
     protected ArrayList<Job> baseJobs;
     private double h;
     private Job[][] data;
+    protected int beginAt;
     int k;
 
     public Scheduling(int size, double h) {
@@ -26,19 +27,19 @@ public class Scheduling {
         this.baseJobs = null;
         this.h = h;
         this.data = null;
+        this.beginAt = 0;
     }
 
     public void readDataFromFile() {
         this.data = FileUtils.getDataFromTextFile("data/sch" + this.size + ".txt");
         this.k = 0;
     }
-    
+
     public boolean readNextProblem() {
-        if(this.k < this.data.length){
-            this.baseJobs=new ArrayList<Job>(Arrays.asList(this.data[k++]));
+        if (this.k < this.data.length) {
+            this.baseJobs = new ArrayList<Job>(Arrays.asList(this.data[k++]));
             return true;
-        }
-        else{
+        } else {
             return false;
         }
     }
@@ -130,4 +131,13 @@ public class Scheduling {
         System.err.println(this.getOrderAsString(jobs));
 
     }
+
+    public int getBeginAt() {
+        return beginAt;
+    }
+
+    public void setBeginAt(int beginAt) {
+        this.beginAt = beginAt;
+    }
+
 }

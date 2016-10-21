@@ -8,7 +8,6 @@ package br.usp.lti.cdds;
 import br.usp.lti.cdds.util.BetaAlphaComparator;
 import br.usp.lti.cdds.util.ProcessingTimeAlphaComparator;
 import br.usp.lti.cdds.util.ProcessingTimeBetaComparator;
-import com.google.common.primitives.Ints;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -29,7 +28,6 @@ public class ConstructionHeuristic extends Scheduling {
         this.orderedSet = new ArrayList<>();
         this.paB = new ArrayList<>(baseJobs);
         Collections.sort(this.paB, new BetaAlphaComparator());
-        this.beginAt=this.findBetterBegin(d, paB);
         Job j = this.paB.get(0);
         this.orderedSet.add(j);
         int processingTimeSum = this.getSum_P(orderedSet);
@@ -51,18 +49,45 @@ public class ConstructionHeuristic extends Scheduling {
             j = this.paB.remove(0);
             this.orderedSet.add(j);
         }
+        this.beginAt = this.findBetterBegin(d, orderedSet);
     }
-    
-    private int findBetterBegin(int d, ArrayList<Job> jobs){
-        double[] percentOfD={0.0, 0.01, 0.02, 0.05, 0.1};
-        int[] values=new int[percentOfD.length];
-        for(int i=0; i<percentOfD.length;i++){
-            int begin=(int) (d*percentOfD[i]);
-            values[i]=(int) this.getPenalty(d, begin, jobs);
+
+    private int findBetterBegin(int d, ArrayList<Job> jobs) {
+        int begin = 0;
+        int end = d;
+        int chosen = Integer.MIN_VALUE;
+        boolean stop = false;
+        int fitnessBegin = (int) this.getPenalty(d, begin, jobs);
+        int fitnessEnd = (int) this.getPenalty(d, end, jobs);
+
+        while (!stop && begin < end) {
+            int mid = (end - begin) / 2;
+            int fitnessMid = (int) this.getPenalty(d, mid, jobs);
+            if (fitnessBegin < fitnessEnd) {
+                if (fitnessMid < fitnessBegin) {
+                    begin = mid;
+                    fitnessBegin = fitnessMid;
+                    chosen = mid;
+                } else if (fitnessMid < fitnessEnd) {
+                    end = mid;
+                    fitnessEnd = fitnessMid;
+                    chosen = begin;
+                } else {
+                    stop = true;
+                }
+            } else if (fitnessMid < fitnessEnd) {
+                end = mid;
+                fitnessEnd = fitnessMid;
+                chosen = mid;
+            } else if (fitnessMid < fitnessBegin) {
+                begin = mid;
+                fitnessBegin = fitnessMid;
+                chosen = end;
+            } else {
+                stop = true;
+            }
         }
-        int min=Ints.min(values);
-        int pos=Ints.indexOf(values, min);
-        return (int) (d*percentOfD[pos]);
+        return chosen;
     }
 
     public ArrayList<Job> getOrderedSet() {

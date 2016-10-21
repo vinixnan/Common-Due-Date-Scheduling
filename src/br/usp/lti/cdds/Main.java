@@ -24,7 +24,7 @@ public class Main {
                 //sdh.printStatus(sdh.getBaseJobs());
                 sdh.method(d);
                 sdh.printStatus(sdh.getOrderedSet());
-                table[i][j] = (int) sdh.getPenalty(d, 0, sdh.getOrderedSet());
+                table[i][j] = (int) sdh.getPenalty(d, sdh.getBeginAt(), sdh.getOrderedSet());
                 j++;
             }
         }

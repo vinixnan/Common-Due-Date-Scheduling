@@ -10,6 +10,8 @@ public class MainComplete {
         int[] sizes = {10, 20, 50, 100, 200, 500, 1000};
         double[] hs = {0.2, 0.4, 0.6, 0.8};
         //double[] hs={0.2};
+        //int[] sizes = {1000};
+        
 
         int[][][] table = new int[sizes.length][hs.length][10];
         long[][] times = new long[sizes.length][hs.length];
@@ -44,7 +46,7 @@ public class MainComplete {
         for (int n = 0; n < sizes.length; n++) {
             for (int h = 0; h < hs.length; h++) {
                 for (int k = 0; k < 10; k++) {
-                    difference[n][h][k] = (((double)table[n][h][k]) - ((double)bench[n][k][h])) / ((double)bench[n][k][h]);
+                    difference[n][h][k] = ((((double)table[n][h][k]) - ((double)bench[n][k][h])) / ((double)bench[n][k][h]))*100.0;
                 }
             }
         }

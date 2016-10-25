@@ -55,39 +55,24 @@ public class ConstructionHeuristic extends Scheduling {
     private int findBetterBegin(int d, ArrayList<Job> jobs) {
         int begin = 0;
         int end = d;
-        int chosen = Integer.MIN_VALUE;
-        boolean stop = false;
         int fitnessBegin = (int) this.getPenalty(d, begin, jobs);
         int fitnessEnd = (int) this.getPenalty(d, end, jobs);
-
-        while (!stop && begin < end) {
+        while (begin < end) {
             int mid = (end - begin) / 2;
             int fitnessMid = (int) this.getPenalty(d, mid, jobs);
-            if (fitnessBegin < fitnessEnd) {
-                if (fitnessMid < fitnessBegin) {
-                    begin = mid;
-                    fitnessBegin = fitnessMid;
-                    chosen = mid;
-                } else if (fitnessMid < fitnessEnd) {
-                    end = mid;
-                    fitnessEnd = fitnessMid;
-                    chosen = begin;
-                } else {
-                    stop = true;
-                }
-            } else if (fitnessMid < fitnessEnd) {
+            if (fitnessMid < fitnessEnd) {
                 end = mid;
                 fitnessEnd = fitnessMid;
-                chosen = mid;
             } else if (fitnessMid < fitnessBegin) {
                 begin = mid;
                 fitnessBegin = fitnessMid;
-                chosen = end;
+            } else if (fitnessBegin < fitnessEnd) {
+                return begin;
             } else {
-                stop = true;
+                return end;
             }
         }
-        return chosen;
+        return begin;
     }
 
     public ArrayList<Job> getOrderedSet() {

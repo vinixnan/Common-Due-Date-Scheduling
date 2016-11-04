@@ -24,32 +24,38 @@ public class ConstructionHeuristic extends Scheduling {
         super(size, h);
     }
 
-    public void method(int d) {
-        this.orderedSet = new ArrayList<>();
-        this.paB = new ArrayList<>(baseJobs);
-        Collections.sort(this.paB, new BetaAlphaComparator());
-        Job j = this.paB.get(0);
-        this.orderedSet.add(j);
-        int processingTimeSum = this.getSum_P(orderedSet);
-        int gap = d - processingTimeSum;
+    private ArrayList<Job> setOrder(ArrayList<Job> toOrder, int d, int begin) {
+        ArrayList<Job> ordered = new ArrayList<>();
+        ArrayList<Job> auxSet = new ArrayList<>(toOrder);
+        Collections.sort(auxSet, new BetaAlphaComparator());
+        Job j = auxSet.get(0);
+        ordered.add(j);
+        int processingTimeSum = this.getSum_P(ordered);
+        int gap = d - processingTimeSum - begin;
 
         while (gap > 0) {
-            this.paB.remove(0);
-            j = this.paB.get(0);
-            this.orderedSet.add(j);
-            processingTimeSum = this.getSum_P(orderedSet);
-            gap = d - processingTimeSum;
+            auxSet.remove(0);
+            j = auxSet.get(0);
+            ordered.add(j);
+            processingTimeSum = this.getSum_P(ordered);
+            gap = d - processingTimeSum - begin;
         }
         if (gap < 0) {
-            this.orderedSet.remove(this.orderedSet.size() - 1);
+            ordered.remove(ordered.size() - 1);
         }
-        Collections.sort(this.orderedSet, new ProcessingTimeAlphaComparator());
-        Collections.sort(this.paB, new ProcessingTimeBetaComparator());
-        while (this.paB.size() > 0) {
-            j = this.paB.remove(0);
-            this.orderedSet.add(j);
+        Collections.sort(ordered, new ProcessingTimeAlphaComparator());
+        Collections.sort(auxSet, new ProcessingTimeBetaComparator());
+        while (auxSet.size() > 0) {
+            j = auxSet.remove(0);
+            ordered.add(j);
         }
+        return ordered;
+    }
+
+    public void method(int d) {
+        this.orderedSet = this.setOrder(baseJobs, d, 0);
         this.beginAt = this.findBetterBegin(d, orderedSet);
+        this.orderedSet = this.setOrder(orderedSet, d, this.beginAt);
     }
 
     private int findBetterBegin(int d, ArrayList<Job> jobs) {

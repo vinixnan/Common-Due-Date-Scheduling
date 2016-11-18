@@ -23,7 +23,7 @@ public class MainComplete {
             bench[n] = FileUtils.readBenchMark(benchmark);//int[k][h.size]
             for (int i = 0; i < hs.length; i++) {
                 double h = hs[i];
-                ConstructionHeuristic sdh = new ConstructionHeuristic(size, h);
+                LocalSearch sdh = new LocalSearch(size, h);
                 sdh.readDataFromFile();
                 long begin = System.currentTimeMillis();
                 int k = 0;

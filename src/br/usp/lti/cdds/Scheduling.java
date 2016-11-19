@@ -13,14 +13,15 @@ import java.util.Arrays;
  *
  * @author vinicius
  */
-public class Scheduling {
+public abstract class Scheduling {
 
     protected int size;
     protected ArrayList<Job> baseJobs;
     private double h;
     private Job[][] data;
     protected int beginAt;
-    int k;
+    protected int k;
+    protected ArrayList<Job> orderedSet;//B Set
 
     public Scheduling(int size, double h) {
         this.size = size;
@@ -140,4 +141,13 @@ public class Scheduling {
         this.beginAt = beginAt;
     }
 
+    public abstract void method(int d);
+
+    public ArrayList<Job> getOrderedSet() {
+        return orderedSet;
+    }
+
+    public void setOrderedSet(ArrayList<Job> orderedSet) {
+        this.orderedSet = orderedSet;
+    }
 }

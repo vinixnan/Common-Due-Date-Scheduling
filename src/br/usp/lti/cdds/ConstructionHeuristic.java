@@ -18,7 +18,6 @@ import java.util.Collections;
 public class ConstructionHeuristic extends Scheduling {
 
     private ArrayList<Job> paB;
-    private ArrayList<Job> orderedSet;//B Set
 
     public ConstructionHeuristic(int size, double h) {
         super(size, h);
@@ -80,13 +79,4 @@ public class ConstructionHeuristic extends Scheduling {
         }
         return begin;
     }
-
-    public ArrayList<Job> getOrderedSet() {
-        return orderedSet;
-    }
-
-    public void setOrderedSet(ArrayList<Job> orderedSet) {
-        this.orderedSet = orderedSet;
-    }
-
 }

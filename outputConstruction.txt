@@ -24,11 +24,12 @@ Total;1.0221254399539446;5.24492221933325;3.3590686221671704;21.807569418874884;
 Overall Average=7.858421425082307
 Overall Average=7.858421425082312
 N;Total
-10;14ms;
-20;7ms;
-50;10ms;
-100;21ms;
-200;49ms;
-500;63ms;
-1000;93ms;
-Total time 257ms
+10;15ms;
+20;10ms;
+50;9ms;
+100;28ms;
+200;38ms;
+500;55ms;
+1000;124ms;
+Total time 279ms
+CONSTRUÍDO COM SUCESSO (tempo total: 3 segundos)

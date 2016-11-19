@@ -9,9 +9,13 @@ public class MainComplete {
 
         int[] sizes = {10, 20, 50, 100, 200, 500, 1000};
         double[] hs = {0.2, 0.4, 0.6, 0.8};
+        int type = 2;//1 construction 2 local search
+
+        if (args.length == 1) {
+            type = Integer.parseInt(args[0]);
+        }
         //double[] hs={0.2};
         //int[] sizes = {1000};
-        
 
         int[][][] table = new int[sizes.length][hs.length][10];
         long[][] times = new long[sizes.length][hs.length];
@@ -20,10 +24,18 @@ public class MainComplete {
         for (int n = 0; n < sizes.length; n++) {
             int size = sizes[n];
             String benchmark = "bench/bench" + size + ".csv";
+            benchmark = "csv/saida_" + size + "_const.csv";
+            System.out.println(benchmark);
             bench[n] = FileUtils.readBenchMark(benchmark);//int[k][h.size]
             for (int i = 0; i < hs.length; i++) {
                 double h = hs[i];
-                LocalSearch sdh = new LocalSearch(size, h);
+                Scheduling sdh;
+                if (type == 1) {
+                    sdh = new ConstructionHeuristic(size, h);
+                } else {
+                    sdh = new LocalSearch(size, h);
+                }
+
                 sdh.readDataFromFile();
                 long begin = System.currentTimeMillis();
                 int k = 0;
@@ -46,16 +58,16 @@ public class MainComplete {
         for (int n = 0; n < sizes.length; n++) {
             for (int h = 0; h < hs.length; h++) {
                 for (int k = 0; k < 10; k++) {
-                    difference[n][h][k] = ((((double)table[n][h][k]) - ((double)bench[n][k][h])) / ((double)bench[n][k][h]))*100.0;
+                    difference[n][h][k] = ((((double) table[n][h][k]) - ((double) bench[n][k][h])) / ((double) bench[n][k][h])) * 100.0;
                 }
             }
         }
-        
-        double overallDifference=0.0;
+
+        double overallDifference = 0.0;
         for (int n = 0; n < sizes.length; n++) {
             for (int h = 0; h < hs.length; h++) {
                 for (int k = 0; k < 10; k++) {
-                    overallDifference+=difference[n][h][k];
+                    overallDifference += difference[n][h][k];
                 }
             }
         }
@@ -64,96 +76,91 @@ public class MainComplete {
         double[][] differencesAverages = new double[sizes.length][hs.length];
         for (int n = 0; n < sizes.length; n++) {
             for (int h = 0; h < hs.length; h++) {
-                double sum=0.0;
+                double sum = 0.0;
                 for (int k = 0; k < 10; k++) {
-                    sum+=difference[n][h][k];
+                    sum += difference[n][h][k];
                 }
-                sum=sum/10.0;
-                differencesAverages[n][h]=sum;
+                sum = sum / 10.0;
+                differencesAverages[n][h] = sum;
             }
         }
-        
+
         double[][] fitnessAverages = new double[sizes.length][hs.length];
         for (int n = 0; n < sizes.length; n++) {
             for (int h = 0; h < hs.length; h++) {
-                double sum=0.0;
+                double sum = 0.0;
                 for (int k = 0; k < 10; k++) {
-                    sum+=table[n][h][k];
+                    sum += table[n][h][k];
                 }
-                sum=sum/10.0;
-                fitnessAverages[n][h]=sum;
+                sum = sum / 10.0;
+                fitnessAverages[n][h] = sum;
             }
         }
-        
-        
+
         System.out.println("\nFitness Average Tables");
-        System.out.println("Size\\H;"+Arrays.toString(hs).replace(",", ";").replace("[", "").replace("]", "")+";Total;");
+        System.out.println("Size\\H;" + Arrays.toString(hs).replace(",", ";").replace("[", "").replace("]", "") + ";Total;");
         for (int n = 0; n < sizes.length; n++) {
-            int size=sizes[n];
-            System.out.print(size+";");
-            double meanH=0.0;
+            int size = sizes[n];
+            System.out.print(size + ";");
+            double meanH = 0.0;
             for (int h = 0; h < hs.length; h++) {
-                System.out.print(fitnessAverages[n][h]+";");
-                meanH+=fitnessAverages[n][h];
+                System.out.print(fitnessAverages[n][h] + ";");
+                meanH += fitnessAverages[n][h];
             }
-            meanH=meanH/hs.length;
-            System.out.println(meanH+";");
+            meanH = meanH / hs.length;
+            System.out.println(meanH + ";");
         }
         System.out.print("Total;");
         for (int h = 0; h < hs.length; h++) {
-            double meanH=0.0;
+            double meanH = 0.0;
             for (int n = 0; n < sizes.length; n++) {
-                meanH+=fitnessAverages[n][h];
+                meanH += fitnessAverages[n][h];
             }
-            meanH=meanH/sizes.length;
-            System.out.print(meanH+";");
+            meanH = meanH / sizes.length;
+            System.out.print(meanH + ";");
         }
-        
-        
+
         System.out.println("\n\n\nDifferences Average Tables");
-        System.out.println("Size\\H;"+Arrays.toString(hs).replace(",", ";").replace("[", "").replace("]", "")+";Total;");
+        System.out.println("Size\\H;" + Arrays.toString(hs).replace(",", ";").replace("[", "").replace("]", "") + ";Total;");
         for (int n = 0; n < sizes.length; n++) {
-            int size=sizes[n];
-            System.out.print(size+";");
-            double meanH=0.0;
+            int size = sizes[n];
+            System.out.print(size + ";");
+            double meanH = 0.0;
             for (int h = 0; h < hs.length; h++) {
-                System.out.print(differencesAverages[n][h]+";");
-                meanH+=differencesAverages[n][h];
+                System.out.print(differencesAverages[n][h] + ";");
+                meanH += differencesAverages[n][h];
             }
-            meanH=meanH/hs.length;
-            System.out.println(meanH+";");
+            meanH = meanH / hs.length;
+            System.out.println(meanH + ";");
         }
-        
+
         System.out.print("Total;");
-        double overrall2=0.0;
+        double overrall2 = 0.0;
         for (int h = 0; h < hs.length; h++) {
-            double meanH=0.0;
+            double meanH = 0.0;
             for (int n = 0; n < sizes.length; n++) {
-                meanH+=differencesAverages[n][h];
+                meanH += differencesAverages[n][h];
             }
-            meanH=meanH/sizes.length;
-            overrall2+=meanH;
-            System.out.print(meanH+";");
+            meanH = meanH / sizes.length;
+            overrall2 += meanH;
+            System.out.print(meanH + ";");
         }
-        overrall2=overrall2/hs.length;
-        
-        
-        
-        
-        System.out.println("\n\nOverall Average="+overallDifference);
-        System.out.println("Overall Average="+overrall2);
+        overrall2 = overrall2 / hs.length;
+
+        System.out.println("\n\nOverall Average=" + overallDifference);
+        System.out.println("Overall Average=" + overrall2);
         System.out.println("N;Total");
-        long sumAll=0;
+        long sumAll = 0;
         for (int n = 0; n < sizes.length; n++) {
-            int size=sizes[n];
-            long sumTimeH=0;
+            int size = sizes[n];
+            long sumTimeH = 0;
             for (int h = 0; h < hs.length; h++) {
-                sumTimeH+=times[n][h];
+                sumTimeH += times[n][h];
             }
-            sumAll+=sumTimeH;
-            System.out.println(size+";"+sumTimeH+"ms;");
+            sumAll += sumTimeH;
+            System.out.println(size + ";" + sumTimeH + "ms;");
         }
-        System.out.println("Total time "+sumAll+"ms");
+        System.out.println("Total time " + sumAll + "ms");
     }
 
 }

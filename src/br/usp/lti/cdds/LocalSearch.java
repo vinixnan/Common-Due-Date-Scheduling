@@ -5,7 +5,6 @@
  */
 package br.usp.lti.cdds;
 
-import br.usp.lti.cdds.util.BetaAlphaComparator;
 import br.usp.lti.cdds.util.ProcessingTimeAlphaComparator;
 import br.usp.lti.cdds.util.ProcessingTimeBetaComparator;
 import java.util.ArrayList;
@@ -15,111 +14,111 @@ import java.util.Collections;
  *
  * @author vinicius
  */
-public class LocalSearch extends Scheduling {
-
-    private ArrayList<Job> paB;
+public class LocalSearch extends ConstructionHeuristic {
 
     public LocalSearch(int size, double h) {
         super(size, h);
     }
-
-    private ArrayList<ArrayList<Job>> getOrderedTwoSet(ArrayList<Job> toOrder, int d, int begin) {
-        ArrayList<Job> ordered = new ArrayList<>();
-        ArrayList<Job> auxSet = new ArrayList<>(toOrder);
-        Collections.sort(auxSet, new BetaAlphaComparator());
-        Job j = auxSet.get(0);
-        ordered.add(j);
-        int processingTimeSum = this.getSum_P(ordered);
+    
+    private Object[] localSearch(ArrayList<Job> base, int d, int begin) {
+        ArrayList<Job> beforeD = new ArrayList<>();
+        ArrayList<Job> afterD = new ArrayList<>(base);
+        int processingTimeSum = 0;
         int gap = d - processingTimeSum - begin;
         while (gap > 0) {
-            auxSet.remove(0);
-            j = auxSet.get(0);
-            ordered.add(j);
-            processingTimeSum = this.getSum_P(ordered);
+            Job j = afterD.remove(0);
+            beforeD.add(j);
+            processingTimeSum = this.getSum_P(beforeD);
             gap = d - processingTimeSum - begin;
         }
         if (gap < 0) {
-            ordered.remove(ordered.size() - 1);
+            Job j = beforeD.remove(beforeD.size() - 1);
+            afterD.add(j);
         }
-        ArrayList<ArrayList<Job>> toReturn = new ArrayList<>();
-        toReturn.add(ordered);
-        toReturn.add(auxSet);
-        return toReturn;
+        return this.localSearch(base, beforeD, afterD, d, begin);
     }
-
-    private ArrayList<Job> findOrderInConstruction(ArrayList<Job> toOrder, int d, int begin) {
-        ArrayList<ArrayList<Job>> twoSet = this.getOrderedTwoSet(toOrder, d, begin);
-        ArrayList<Job> ordered = twoSet.get(0);
-        ArrayList<Job> auxSet = twoSet.get(1);
-        Collections.sort(ordered, new ProcessingTimeAlphaComparator());
-        Collections.sort(auxSet, new ProcessingTimeBetaComparator());
-        while (auxSet.size() > 0) {
-            Job j = auxSet.remove(0);
-            ordered.add(j);
-        }
-        return ordered;
-    }
-
-    private Object[] order(ArrayList<Job> base, int d, int beginOriginal) {
-        ArrayList<Job> order = this.findOrderInConstruction(base, d, beginOriginal);
-        int begin = this.findBetterBegin(d, order);
-        double orderFitness = this.getPenalty(d, begin, order);
-        boolean finished = true;
-        while (!finished) {
-            ArrayList<Job> newOrder = this.findOrderInConstruction(order, d, begin);
-            int secondBegin = this.findBetterBegin(d, newOrder);
-            double newOrderFitness = this.getPenalty(d, secondBegin, newOrder);
-            if (orderFitness > newOrderFitness) {
-                order = newOrder;
-                orderFitness = newOrderFitness;
-                begin = secondBegin;
-            } else {
-                finished = true;
+    
+    private Object[] vshapedSort(ArrayList<Job> beforeD, ArrayList<Job> afterD, int d){
+        
+        ArrayList<Job> all=new ArrayList<>();
+        Collections.sort(beforeD, new ProcessingTimeAlphaComparator());
+        Collections.sort(afterD, new ProcessingTimeBetaComparator());
+        all.addAll(beforeD);
+        all.addAll(afterD);
+        int currentBegin=0;
+        int nowBegin=0;
+        ArrayList<Job> currentOrder=all;
+        ArrayList<Job> nowOrder=all;
+        double currentFitness=this.getPenalty(d, currentBegin, all);
+        double nowFitness=currentFitness;
+        
+        do {
+            if (nowFitness < currentFitness) {
+                currentFitness = nowFitness;
+                currentOrder = nowOrder;
+                currentBegin = nowBegin;
             }
-        }
+            nowOrder=new ArrayList<>();
+            ArrayList<Job> myBefore = new ArrayList<>(beforeD);
+            ArrayList<Job> myAfter = new ArrayList<>(afterD);
+            
+            
+            int processingTimeSum = 0;
+            int gap = d - processingTimeSum - currentBegin;
+            while (gap > 0) {
+                Job j = myAfter.remove(0);
+                myBefore.add(j);
+                processingTimeSum = this.getSum_P(myBefore);
+                gap = d - processingTimeSum - currentBegin;
+            }
+            if (gap < 0) {
+                Job j = myBefore.remove(myBefore.size() - 1);
+                myAfter.add(j);
+            }
+            Collections.sort(myBefore, new ProcessingTimeAlphaComparator());
+            Collections.sort(myAfter, new ProcessingTimeBetaComparator());
+            nowOrder.addAll(myBefore);
+            nowOrder.addAll(myAfter);
+            nowBegin = this.findBetterBegin(d, nowOrder, currentBegin);
+            nowFitness = this.getPenalty(d, nowBegin, nowOrder);
+
+        } while (nowFitness < currentFitness);
+        currentBegin=this.hardfindBetterBegin(currentOrder, d, currentBegin);
         Object[] toRet = new Object[2];
-        toRet[0] = order;
-        toRet[1] = begin;
+        toRet[0] = currentOrder;
+        toRet[1] = currentBegin;
         return toRet;
     }
 
-    private Object[] localSearch(ArrayList<Job> base, int d, int begin) {
+    private Object[] localSearch(ArrayList<Job> base, ArrayList<Job> beforeD, ArrayList<Job> afterD, int d, int begin) {
         ArrayList<ArrayList<Job>> allgenerated = new ArrayList<>();
-        ArrayList<ArrayList<Job>> splitBase = this.getOrderedTwoSet(base, d, begin);
-        ArrayList<Job> beforeD = splitBase.get(0);
-        ArrayList<Job> afterD = splitBase.get(1);
+        ArrayList<Integer> allbegins = new ArrayList<>();
         //foward
         for (int i = 0; i < beforeD.size(); i++) {
             ArrayList<Job> myBefore = new ArrayList<>(beforeD);
             ArrayList<Job> myAfter = new ArrayList<>(afterD);
+            ArrayList<Job> all = new ArrayList<>();
+            
+            //MOVEMENT
             Job j = myBefore.remove(i);
             myAfter.add(j);
-
-            Collections.sort(myBefore, new ProcessingTimeAlphaComparator());
-            Collections.sort(myAfter, new ProcessingTimeBetaComparator());
-
-            while (myAfter.size() > 0) {
-                j = myAfter.remove(0);
-                myBefore.add(j);
-            }
-            allgenerated.add(myBefore);
+            //MOVEMENT
+            Object[] returned=this.vshapedSort(myBefore, myAfter, d);
+            allgenerated.add((ArrayList<Job>) returned[0]);
+            allbegins.add((Integer) returned[1]);
         }
 
         //back
         for (int i = 0; i < afterD.size(); i++) {
             ArrayList<Job> myBefore = new ArrayList<>(beforeD);
             ArrayList<Job> myAfter = new ArrayList<>(afterD);
+            //MOVEMENT
             Job j = myAfter.remove(i);
             myBefore.add(j);
-
-            Collections.sort(myBefore, new ProcessingTimeAlphaComparator());
-            Collections.sort(myAfter, new ProcessingTimeBetaComparator());
-
-            while (myAfter.size() > 0) {
-                j = myAfter.remove(0);
-                myBefore.add(j);
-            }
-            allgenerated.add(myBefore);
+            //movement
+            Object[] returned=this.vshapedSort(myBefore, myAfter, d);
+            allgenerated.add((ArrayList<Job>) returned[0]);
+            allbegins.add((Integer) returned[1]);
         }
 
         //find best
@@ -127,7 +126,7 @@ public class LocalSearch extends Scheduling {
         ArrayList<Job> best = base;
         for (int i = 0; i < allgenerated.size(); i++) {
             ArrayList<Job> aux = allgenerated.get(i);
-            int auxBegin = this.findBetterBegin(d, aux);
+            int auxBegin=allbegins.get(i);
             double auxFitness = this.getPenalty(d, auxBegin, aux);
             if (auxFitness < fitness) {
                 best = aux;
@@ -141,8 +140,9 @@ public class LocalSearch extends Scheduling {
         return toRet;
     }
 
+    @Override
     public void method(int d) {
-        Object[] toRet = this.order(this.baseJobs, d, 0);
+        Object[] toRet = this.sortUsingConstructionMethod(this.baseJobs, d);
         ArrayList<Job> currentSet = (ArrayList<Job>) toRet[0];
         int currentBegin = (int) toRet[1];
         Object[] searchResult = this.localSearch(currentSet, d, currentBegin);
@@ -163,28 +163,5 @@ public class LocalSearch extends Scheduling {
 
         this.orderedSet = currentSet;
         this.beginAt = currentBegin;
-    }
-
-    private int findBetterBegin(int d, ArrayList<Job> jobs) {
-        int begin = 0;
-        int end = d;
-        int fitnessBegin = (int) this.getPenalty(d, begin, jobs);
-        int fitnessEnd = (int) this.getPenalty(d, end, jobs);
-        while (begin < end) {
-            int mid = (end - begin) / 2;
-            int fitnessMid = (int) this.getPenalty(d, mid, jobs);
-            if (fitnessMid < fitnessEnd) {
-                end = mid;
-                fitnessEnd = fitnessMid;
-            } else if (fitnessMid < fitnessBegin) {
-                begin = mid;
-                fitnessBegin = fitnessMid;
-            } else if (fitnessBegin < fitnessEnd) {
-                return begin;
-            } else {
-                return end;
-            }
-        }
-        return begin;
     }
 }

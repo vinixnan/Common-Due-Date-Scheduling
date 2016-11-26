@@ -4,10 +4,10 @@ public class Main {
 
     public static void main(String[] args) {
 
-        int size = 10;
+        int size = 20;
         int type = 1;//1 construction 2 local search
-        double[] hs = {0.2, 0.4, 0.6, 0.8};
-        //double[] hs={0.2};
+        //double[] hs = {0.2, 0.4, 0.6, 0.8};
+        double[] hs={0.8};
 
         if (args.length == 2) {
             size = Integer.parseInt(args[0]);

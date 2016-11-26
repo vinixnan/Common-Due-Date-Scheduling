@@ -127,7 +127,7 @@ public abstract class Scheduling {
     public void printStatus(ArrayList<Job> jobs) {
         double SUM_P = this.getSum_P(jobs);
         int d = (int) Math.round(SUM_P * h);
-        double minSum = this.getPenalty(d, 0, jobs); //a fazer: mtodo que calcula a penalidade dos jobs
+        double minSum = this.getPenalty(d, this.beginAt, jobs); //a fazer: mtodo que calcula a penalidade dos jobs
         System.err.println("Sum " + SUM_P + " D=" + d + " Fitness=" + minSum);
         System.err.println(this.getOrderAsString(jobs));
 

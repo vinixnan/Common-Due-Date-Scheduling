@@ -24,7 +24,7 @@ public class MainComplete {
         for (int n = 0; n < sizes.length; n++) {
             int size = sizes[n];
             String benchmark = "bench/bench" + size + ".csv";
-            benchmark = "csv/saida_" + size + "_const.csv";
+            //benchmark = "csv/saida_" + size + "_const.csv";
             System.out.println(benchmark);
             bench[n] = FileUtils.readBenchMark(benchmark);//int[k][h.size]
             for (int i = 0; i < hs.length; i++) {

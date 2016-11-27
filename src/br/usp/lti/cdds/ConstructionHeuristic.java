@@ -20,7 +20,7 @@ public class ConstructionHeuristic extends Scheduling {
     public ConstructionHeuristic(int size, double h) {
         super(size, h);
     }
-    
+
     protected ArrayList<Job> findOrderInConstruction(ArrayList<Job> toOrder, int d, int begin) {
         ArrayList<ArrayList<Job>> twoSet = this.getOrderedTwoSet(toOrder, d, begin);
         ArrayList<Job> ordered = twoSet.get(0);
@@ -31,7 +31,7 @@ public class ConstructionHeuristic extends Scheduling {
         }
         return ordered;
     }
-    
+
     protected ArrayList<ArrayList<Job>> getOrderedTwoSet(ArrayList<Job> toOrder, int d, int begin) {
         ArrayList<Job> ordered = new ArrayList<>();
         ArrayList<Job> auxSet = new ArrayList<>(toOrder);
@@ -42,37 +42,13 @@ public class ConstructionHeuristic extends Scheduling {
             Job j = auxSet.remove(0);
             ordered.add(j);
             processingTimeSum = this.getSum_P(ordered);
-            gap = d - processingTimeSum - begin;
+            gap = d - (processingTimeSum + begin);
         }
-        if (gap < 0) {
+        while (gap < 0) {
             Job j = ordered.remove(ordered.size() - 1);
             auxSet.add(j);
             processingTimeSum = this.getSum_P(ordered);
-            gap = d - processingTimeSum - begin;
-            boolean found=false;
-            while(gap > 0 && !found){
-                int suitable=0;
-                int bestDistance=Integer.MAX_VALUE;
-                for(int i=0; i < auxSet.size(); i++){
-                    int difference=gap-auxSet.get(i).getProcessingTime();
-                    if(difference > 0){
-                        int distance=Math.abs(difference);
-                        if(distance < bestDistance){
-                            bestDistance=distance;
-                            suitable=i;
-                        }
-                    }
-                }
-                if(bestDistance!=Integer.MAX_VALUE){
-                    j = auxSet.remove(suitable);
-                    ordered.add(j);
-                    processingTimeSum = this.getSum_P(ordered);
-                    gap = d - processingTimeSum - begin;
-                }
-                else{
-                    found=true;
-                }
-            }
+            gap = d - (processingTimeSum + begin);
         }
         Collections.sort(ordered, new ProcessingTimeAlphaComparator());
         Collections.sort(auxSet, new ProcessingTimeBetaComparator());
@@ -84,7 +60,7 @@ public class ConstructionHeuristic extends Scheduling {
 
     protected Object[] sortUsingConstructionMethod(ArrayList<Job> currentOrder, int d) {
         ArrayList<Job> nowOrder = currentOrder;
-        int currentBegin = 0;
+        int currentBegin = this.findBetterBegin(d, nowOrder, 0);
         int nowBegin = currentBegin;
         double currentFitness = this.getPenalty(d, currentBegin, currentOrder);
         double nowFitness = currentFitness;
@@ -97,92 +73,77 @@ public class ConstructionHeuristic extends Scheduling {
             }
             nowOrder = this.findOrderInConstruction(currentOrder, d, currentBegin);
             nowBegin = this.findBetterBegin(d, nowOrder, currentBegin);
-            //nowOrder = this.setOrder(nowOrder, d, nowBegin);
             nowFitness = this.getPenalty(d, nowBegin, nowOrder);
 
         } while (nowFitness < currentFitness);
-        currentBegin=this.hardfindBetterBegin(currentOrder, d, currentBegin);
+        //currentBegin=this.hardfindBetterBegin(currentOrder, d, currentBegin);
         Object[] toRet = new Object[2];
         toRet[0] = currentOrder;
         toRet[1] = currentBegin;
         return toRet;
     }
-    
+
     protected int hardfindBetterBegin(ArrayList<Job> jobs, int d, int foundBegin) {
         int fitnessCurrent = (int) this.getPenalty(d, foundBegin, jobs);
-        int toReturn=foundBegin;
-        /*
-        for (int i = 0; i < d; i++) {
-            int fitnessNow = (int) this.getPenalty(d, i, jobs);
-            if (fitnessNow < fitnessCurrent) {
-                toReturn = i;
-            }
-        }
-        */
-        
-        int middle=d/2;
-        int distanceFromD=Math.abs(d-foundBegin);
-        int distanceFromZero=Math.abs(foundBegin-0);
-        int distanceFromMiddle=Math.abs(foundBegin-middle);
-        if(distanceFromD <  distanceFromZero && distanceFromD < distanceFromMiddle){
-            for(int i=foundBegin+1; i < d; i++){
+        int toReturn = foundBegin;
+        int middle = d / 2;
+        int distanceFromD = Math.abs(d - foundBegin);
+        int distanceFromZero = Math.abs(foundBegin - 0);
+        int distanceFromMiddle = Math.abs(foundBegin - middle);
+        if (distanceFromD < distanceFromZero && distanceFromD < distanceFromMiddle) {
+            for (int i = foundBegin + 1; i < d; i++) {
                 int fitnessNow = (int) this.getPenalty(d, i, jobs);
                 if (fitnessNow < fitnessCurrent) {
-                    toReturn=i;
-                } 
+                    toReturn = i;
+                }
             }
-        }
-        else if(distanceFromZero < distanceFromMiddle){
-            for(int i=0; i < foundBegin-1; i++){
+        } else if (distanceFromZero < distanceFromMiddle) {
+            for (int i = 0; i < foundBegin - 1; i++) {
                 int fitnessNow = (int) this.getPenalty(d, i, jobs);
                 if (fitnessNow < fitnessCurrent) {
-                    toReturn=i;
-                } 
+                    toReturn = i;
+                }
             }
-        }
-        else{
-            for(int i=foundBegin-distanceFromMiddle; i < foundBegin-1; i++){
+        } else {
+            for (int i = foundBegin - distanceFromMiddle; i < foundBegin - 1; i++) {
                 int fitnessNow = (int) this.getPenalty(d, i, jobs);
                 if (fitnessNow < fitnessCurrent) {
-                    toReturn=i;
-                } 
+                    toReturn = i;
+                }
             }
-            for(int i=foundBegin+1; i < foundBegin+distanceFromMiddle; i++){
+            for (int i = foundBegin + 1; i < foundBegin + distanceFromMiddle; i++) {
                 int fitnessNow = (int) this.getPenalty(d, i, jobs);
                 if (fitnessNow < fitnessCurrent) {
-                    toReturn=i;
-                } 
+                    toReturn = i;
+                }
             }
         }
 
         return toReturn;
     }
-    
+
     protected int findBetterBegin(int d, ArrayList<Job> jobs) {
         return this.findBetterBegin(d, jobs, 0);
     }
-    
+
     protected int findBetterBegin(int d, ArrayList<Job> jobs, int currentBegin) {
-         int bg1=0;
-        if(currentBegin > 0){
-            bg1=this.findBetterBegin(d, jobs, 0, currentBegin);
+        int bg1 = 0;
+        if (currentBegin > 0) {
+            bg1 = this.findBetterBegin(d, jobs, 0, currentBegin);
         }
-        int bg2=this.findBetterBegin(d, jobs, currentBegin, d);
-        int bg3=this.findBetterBegin(d, jobs, 0, d);
-        int fitnessBg1= (int) this.getPenalty(d, bg1, jobs);
-        int fitnessBg2= (int) this.getPenalty(d, bg2, jobs);
-        int fitnessBg3= (int) this.getPenalty(d, bg3, jobs);
-        if(fitnessBg1 < fitnessBg2 && fitnessBg1 < fitnessBg3){
+        int bg2 = this.findBetterBegin(d, jobs, currentBegin, d);
+        int bg3 = this.findBetterBegin(d, jobs, 0, d);
+        int fitnessBg1 = (int) this.getPenalty(d, bg1, jobs);
+        int fitnessBg2 = (int) this.getPenalty(d, bg2, jobs);
+        int fitnessBg3 = (int) this.getPenalty(d, bg3, jobs);
+        if (fitnessBg1 < fitnessBg2 && fitnessBg1 < fitnessBg3) {
             return bg1;
-        }
-        else if(fitnessBg2 < fitnessBg3){
+        } else if (fitnessBg2 < fitnessBg3) {
             return bg2;
-        }
-        else{
+        } else {
             return bg3;
         }
     }
-    
 
     protected int findBetterBegin(int d, ArrayList<Job> jobs, int begin, int end) {
         int fitnessBegin = (int) this.getPenalty(d, begin, jobs);

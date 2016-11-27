@@ -19,75 +19,13 @@ public class LocalSearch extends ConstructionHeuristic {
     public LocalSearch(int size, double h) {
         super(size, h);
     }
-    
-    private Object[] localSearch(ArrayList<Job> base, int d, int begin) {
-        ArrayList<Job> beforeD = new ArrayList<>();
-        ArrayList<Job> afterD = new ArrayList<>(base);
-        int processingTimeSum = 0;
-        int gap = d - processingTimeSum - begin;
-        while (gap > 0) {
-            Job j = afterD.remove(0);
-            beforeD.add(j);
-            processingTimeSum = this.getSum_P(beforeD);
-            gap = d - processingTimeSum - begin;
-        }
-        if (gap < 0) {
-            Job j = beforeD.remove(beforeD.size() - 1);
-            afterD.add(j);
-        }
-        return this.localSearch(base, beforeD, afterD, d, begin);
-    }
-    
-    private Object[] vshapedSort(ArrayList<Job> beforeD, ArrayList<Job> afterD, int d){
-        
-        ArrayList<Job> all=new ArrayList<>();
-        Collections.sort(beforeD, new ProcessingTimeAlphaComparator());
-        Collections.sort(afterD, new ProcessingTimeBetaComparator());
-        all.addAll(beforeD);
-        all.addAll(afterD);
-        int currentBegin=0;
-        int nowBegin=0;
-        ArrayList<Job> currentOrder=all;
-        ArrayList<Job> nowOrder=all;
-        double currentFitness=this.getPenalty(d, currentBegin, all);
-        double nowFitness=currentFitness;
-        
-        do {
-            if (nowFitness < currentFitness) {
-                currentFitness = nowFitness;
-                currentOrder = nowOrder;
-                currentBegin = nowBegin;
-            }
-            nowOrder=new ArrayList<>();
-            ArrayList<Job> myBefore = new ArrayList<>(beforeD);
-            ArrayList<Job> myAfter = new ArrayList<>(afterD);
-            
-            
-            int processingTimeSum = 0;
-            int gap = d - processingTimeSum - currentBegin;
-            while (gap > 0) {
-                Job j = myAfter.remove(0);
-                myBefore.add(j);
-                processingTimeSum = this.getSum_P(myBefore);
-                gap = d - processingTimeSum - currentBegin;
-            }
-            if (gap < 0) {
-                Job j = myBefore.remove(myBefore.size() - 1);
-                myAfter.add(j);
-            }
-            Collections.sort(myBefore, new ProcessingTimeAlphaComparator());
-            Collections.sort(myAfter, new ProcessingTimeBetaComparator());
-            nowOrder.addAll(myBefore);
-            nowOrder.addAll(myAfter);
-            nowBegin = this.findBetterBegin(d, nowOrder, currentBegin);
-            nowFitness = this.getPenalty(d, nowBegin, nowOrder);
 
-        } while (nowFitness < currentFitness);
-        currentBegin=this.hardfindBetterBegin(currentOrder, d, currentBegin);
-        Object[] toRet = new Object[2];
-        toRet[0] = currentOrder;
-        toRet[1] = currentBegin;
-        return toRet;
+    private Object[] localSearch(ArrayList<Job> base, int d, int begin) {
+        //Split
+        ArrayList<ArrayList<Job>> splitted = this.split(base, d, begin);
+        ArrayList<Job> beforeD = splitted.get(0);
+        ArrayList<Job> afterD = splitted.get(1);
+        return this.localSearch(base, beforeD, afterD, d, begin);
     }
 
     private Object[] localSearch(ArrayList<Job> base, ArrayList<Job> beforeD, ArrayList<Job> afterD, int d, int begin) {
@@ -97,13 +35,11 @@ public class LocalSearch extends ConstructionHeuristic {
         for (int i = 0; i < beforeD.size(); i++) {
             ArrayList<Job> myBefore = new ArrayList<>(beforeD);
             ArrayList<Job> myAfter = new ArrayList<>(afterD);
-            ArrayList<Job> all = new ArrayList<>();
-            
             //MOVEMENT
             Job j = myBefore.remove(i);
             myAfter.add(j);
             //MOVEMENT
-            Object[] returned=this.vshapedSort(myBefore, myAfter, d);
+            Object[] returned = this.vshapedSort(myBefore, myAfter, d);
             allgenerated.add((ArrayList<Job>) returned[0]);
             allbegins.add((Integer) returned[1]);
         }
@@ -116,7 +52,7 @@ public class LocalSearch extends ConstructionHeuristic {
             Job j = myAfter.remove(i);
             myBefore.add(j);
             //movement
-            Object[] returned=this.vshapedSort(myBefore, myAfter, d);
+            Object[] returned = this.vshapedSort(myBefore, myAfter, d);
             allgenerated.add((ArrayList<Job>) returned[0]);
             allbegins.add((Integer) returned[1]);
         }
@@ -126,7 +62,7 @@ public class LocalSearch extends ConstructionHeuristic {
         ArrayList<Job> best = base;
         for (int i = 0; i < allgenerated.size(); i++) {
             ArrayList<Job> aux = allgenerated.get(i);
-            int auxBegin=allbegins.get(i);
+            int auxBegin = allbegins.get(i);
             double auxFitness = this.getPenalty(d, auxBegin, aux);
             if (auxFitness < fitness) {
                 best = aux;
@@ -137,6 +73,58 @@ public class LocalSearch extends ConstructionHeuristic {
         Object[] toRet = new Object[2];
         toRet[0] = best;
         toRet[1] = begin;
+        return toRet;
+    }
+
+    private Object[] vshapedSort(ArrayList<Job> beforeD, ArrayList<Job> afterD, int d) {
+
+        ArrayList<Job> all = new ArrayList<>();
+        Collections.sort(beforeD, new ProcessingTimeAlphaComparator());
+        Collections.sort(afterD, new ProcessingTimeBetaComparator());
+        all.addAll(beforeD);
+        all.addAll(afterD);
+        //int currentBegin =0;
+        int currentBegin = this.findBetterBegin(d, all, 0);
+        int nowBegin = currentBegin;
+        ArrayList<Job> currentOrder = all;
+        ArrayList<Job> nowOrder = all;
+        double currentFitness = this.getPenalty(d, currentBegin, all);
+        double nowFitness = currentFitness;
+
+        do {
+            if (nowFitness < currentFitness) {
+                currentFitness = nowFitness;
+                currentOrder = nowOrder;
+                currentBegin = nowBegin;
+            }
+            nowOrder = new ArrayList<>(beforeD);
+            ArrayList<Job> myAfter = new ArrayList<>(afterD);
+
+            int processingTimeSum = 0;
+            int gap = d - processingTimeSum - currentBegin;
+            while (gap > 0) {
+                Job j = myAfter.remove(0);
+                nowOrder.add(j);
+                processingTimeSum = this.getSum_P(nowOrder);
+                gap = d - processingTimeSum - currentBegin;
+            }
+            while (gap < 0) {
+                Job j = nowOrder.remove(nowOrder.size() - 1);
+                myAfter.add(j);
+                processingTimeSum = this.getSum_P(nowOrder);
+                gap = d - (processingTimeSum + currentBegin);
+            }
+            Collections.sort(nowOrder, new ProcessingTimeAlphaComparator());
+            Collections.sort(myAfter, new ProcessingTimeBetaComparator());
+            nowOrder.addAll(myAfter);
+            nowBegin = this.findBetterBegin(d, nowOrder, currentBegin);
+            nowFitness = this.getPenalty(d, nowBegin, nowOrder);
+
+        } while (nowFitness < currentFitness);
+        //currentBegin=this.hardfindBetterBegin(currentOrder, d, currentBegin);
+        Object[] toRet = new Object[2];
+        toRet[0] = currentOrder;
+        toRet[1] = currentBegin;
         return toRet;
     }
 

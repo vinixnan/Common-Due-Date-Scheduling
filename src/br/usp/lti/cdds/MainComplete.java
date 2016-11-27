@@ -9,7 +9,7 @@ public class MainComplete {
 
         int[] sizes = {10, 20, 50, 100, 200, 500, 1000};
         double[] hs = {0.2, 0.4, 0.6, 0.8};
-        int type = 1;//1 construction 2 local search
+        int type = 2;//1 construction 2 local search
 
         if (args.length == 1) {
             type = Integer.parseInt(args[0]);
@@ -24,7 +24,7 @@ public class MainComplete {
         for (int n = 0; n < sizes.length; n++) {
             int size = sizes[n];
             String benchmark = "bench/bench" + size + ".csv";
-            //benchmark = "csv/saida_" + size + "_const.csv";
+            benchmark = "csv/saida_" + size + "_const.csv";
             System.out.println(benchmark);
             bench[n] = FileUtils.readBenchMark(benchmark);//int[k][h.size]
             for (int i = 0; i < hs.length; i++) {

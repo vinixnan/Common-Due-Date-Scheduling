@@ -5,7 +5,7 @@
  */
 package br.usp.lti.cdds.util;
 
-import br.usp.lti.cdds.Job;
+import br.usp.lti.cdds.core.Job;
 import java.util.Comparator;
 
 /**

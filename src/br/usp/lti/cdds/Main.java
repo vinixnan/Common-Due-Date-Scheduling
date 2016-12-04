@@ -1,5 +1,10 @@
 package br.usp.lti.cdds;
 
+import br.usp.lti.cdds.core.HeuristicBase;
+import br.usp.lti.cdds.core.Problem;
+import br.usp.lti.cdds.core.ProblemReader;
+import br.usp.lti.cdds.core.Solution;
+
 public class Main {
 
     public static void main(String[] args) {
@@ -15,23 +20,28 @@ public class Main {
         }
         int[][] table = new int[hs.length][10];
         int[] sums = new int[10];
+        ProblemReader pr=new ProblemReader(size);
+        
         for (int i = 0; i < hs.length; i++) {
-            double h = hs[i];
-            Scheduling sdh;
-            if (type == 1) {
-                sdh = new ConstructionHeuristic(size, h);
-            } else {
-                sdh = new LocalSearch(size, h);
-            }
-            sdh.readDataFromFile();
+            
+            HeuristicBase sdh;
+            pr.readDataFromFile();
             int j = 0;
-            while (sdh.readNextProblem()) {
-                sums[j] = sdh.getSum_P();
+            while (pr.readNextProblem()) {
+                double h = hs[i];
+                sums[j] = Problem.getSum_P(pr.getCurrentProblem());
                 int d = (int) Math.round(sums[j] * h);
+                Problem problem=new Problem(d, h);
+                if (type == 1) {
+                    sdh = new ConstructionHeuristic(problem, pr.getCurrentProblem());
+                } else {
+                    sdh = new LocalSearch(problem, pr.getCurrentProblem());
+                }
                 //sdh.printStatus(sdh.getBaseJobs());
                 sdh.method(d);
-                sdh.printStatus(sdh.getOrderedSet());
-                table[i][j] = (int) sdh.getPenalty(d, sdh.getBeginAt(), sdh.getOrderedSet());
+                Solution s=sdh.getSolution();
+                //sdh.printStatus(sdh);
+                table[i][j] = (int) s.getFitness();
                 j++;
             }
         }

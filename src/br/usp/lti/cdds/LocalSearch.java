@@ -5,6 +5,8 @@
  */
 package br.usp.lti.cdds;
 
+import br.usp.lti.cdds.core.Job;
+import br.usp.lti.cdds.core.Problem;
 import br.usp.lti.cdds.util.ProcessingTimeAlphaComparator;
 import br.usp.lti.cdds.util.ProcessingTimeBetaComparator;
 import java.util.ArrayList;
@@ -16,8 +18,8 @@ import java.util.Collections;
  */
 public class LocalSearch extends ConstructionHeuristic {
 
-    public LocalSearch(int size, double h) {
-        super(size, h);
+    public LocalSearch(Problem problem, ArrayList<Job> toOrder) {
+        super(problem, toOrder);
     }
 
     private Object[] localSearch(ArrayList<Job> base, int d, int begin) {
@@ -58,12 +60,12 @@ public class LocalSearch extends ConstructionHeuristic {
         }
 
         //find best
-        double fitness = this.getPenalty(d, begin, base);
+        double fitness = problem.getPenalty(d, begin, base);
         ArrayList<Job> best = base;
         for (int i = 0; i < allgenerated.size(); i++) {
             ArrayList<Job> aux = allgenerated.get(i);
             int auxBegin = allbegins.get(i);
-            double auxFitness = this.getPenalty(d, auxBegin, aux);
+            double auxFitness = problem.getPenalty(d, auxBegin, aux);
             if (auxFitness < fitness) {
                 best = aux;
                 fitness = auxFitness;
@@ -88,7 +90,7 @@ public class LocalSearch extends ConstructionHeuristic {
         int nowBegin = currentBegin;
         ArrayList<Job> currentOrder = all;
         ArrayList<Job> nowOrder = all;
-        double currentFitness = this.getPenalty(d, currentBegin, all);
+        double currentFitness = problem.getPenalty(d, currentBegin, all);
         double nowFitness = currentFitness;
 
         do {
@@ -105,20 +107,20 @@ public class LocalSearch extends ConstructionHeuristic {
             while (gap > 0) {
                 Job j = myAfter.remove(0);
                 nowOrder.add(j);
-                processingTimeSum = this.getSum_P(nowOrder);
+                processingTimeSum = problem.getSum_P(nowOrder);
                 gap = d - processingTimeSum - currentBegin;
             }
             while (gap < 0) {
                 Job j = nowOrder.remove(nowOrder.size() - 1);
                 myAfter.add(j);
-                processingTimeSum = this.getSum_P(nowOrder);
+                processingTimeSum = problem.getSum_P(nowOrder);
                 gap = d - (processingTimeSum + currentBegin);
             }
             Collections.sort(nowOrder, new ProcessingTimeAlphaComparator());
             Collections.sort(myAfter, new ProcessingTimeBetaComparator());
             nowOrder.addAll(myAfter);
             nowBegin = this.findBetterBegin(d, nowOrder, currentBegin);
-            nowFitness = this.getPenalty(d, nowBegin, nowOrder);
+            nowFitness = problem.getPenalty(d, nowBegin, nowOrder);
 
         } while (nowFitness < currentFitness);
         //currentBegin=this.hardfindBetterBegin(currentOrder, d, currentBegin);
@@ -130,15 +132,15 @@ public class LocalSearch extends ConstructionHeuristic {
 
     @Override
     public void method(int d) {
-        Object[] toRet = this.sortUsingConstructionMethod(this.baseJobs, d);
+        Object[] toRet = this.sortUsingConstructionMethod(solution.getSequenceOfJobs(), d);
         ArrayList<Job> currentSet = (ArrayList<Job>) toRet[0];
         int currentBegin = (int) toRet[1];
         Object[] searchResult = this.localSearch(currentSet, d, currentBegin);
         ArrayList<Job> resultFromSearch = (ArrayList<Job>) searchResult[0];
         int searchBegin = (int) searchResult[1];
 
-        double currentFitness = this.getPenalty(d, currentBegin, currentSet);
-        double searchFitness = this.getPenalty(d, searchBegin, resultFromSearch);
+        double currentFitness = problem.getPenalty(d, currentBegin, currentSet);
+        double searchFitness = problem.getPenalty(d, searchBegin, resultFromSearch);
 
         while (searchFitness < currentFitness) {
             currentSet = resultFromSearch;
@@ -148,8 +150,8 @@ public class LocalSearch extends ConstructionHeuristic {
             resultFromSearch = (ArrayList<Job>) searchResult[0];
             searchBegin = (int) searchResult[1];
         }
-
-        this.orderedSet = currentSet;
-        this.beginAt = currentBegin;
+        solution.setSequenceOfJobs(currentSet);
+        solution.setBeginAt(currentBegin);
+        problem.evaluate(solution);
     }
 }

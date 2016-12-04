@@ -1,4 +1,4 @@
-package br.usp.lti.cdds;
+package br.usp.lti.cdds.core;
 
 public class Job {
 

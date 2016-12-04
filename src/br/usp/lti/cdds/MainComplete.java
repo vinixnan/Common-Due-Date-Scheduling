@@ -1,5 +1,9 @@
 package br.usp.lti.cdds;
 
+import br.usp.lti.cdds.core.HeuristicBase;
+import br.usp.lti.cdds.core.Problem;
+import br.usp.lti.cdds.core.ProblemReader;
+import br.usp.lti.cdds.core.Solution;
 import br.usp.lti.cdds.util.FileUtils;
 import java.util.Arrays;
 
@@ -24,28 +28,31 @@ public class MainComplete {
         for (int n = 0; n < sizes.length; n++) {
             int size = sizes[n];
             String benchmark = "bench/bench" + size + ".csv";
-            benchmark = "csv/saida_" + size + "_const.csv";
+            //benchmark = "csv/saida_" + size + "_const.csv";
             System.out.println(benchmark);
+            ProblemReader pr = new ProblemReader(size);
             bench[n] = FileUtils.readBenchMark(benchmark);//int[k][h.size]
             for (int i = 0; i < hs.length; i++) {
                 double h = hs[i];
-                Scheduling sdh;
-                if (type == 1) {
-                    sdh = new ConstructionHeuristic(size, h);
-                } else {
-                    sdh = new LocalSearch(size, h);
-                }
+                HeuristicBase sdh;
 
-                sdh.readDataFromFile();
+                pr.readDataFromFile();
                 long begin = System.currentTimeMillis();
                 int k = 0;
-                while (sdh.readNextProblem()) {
-                    sums[n][k] = sdh.getSum_P();
+                while (pr.readNextProblem()) {
+                    sums[n][k] = Problem.getSum_P(pr.getCurrentProblem());
                     int d = (int) Math.round(sums[n][k] * h);
+                    Problem problem = new Problem(d, h);
+                    if (type == 1) {
+                        sdh = new ConstructionHeuristic(problem, pr.getCurrentProblem());
+                    } else {
+                        sdh = new LocalSearch(problem, pr.getCurrentProblem());
+                    }
                     //sdh.printStatus(sdh.getBaseJobs());
                     sdh.method(d);
+                    Solution s = sdh.getSolution();
                     //sdh.printStatus(sdh.getOrderedSet());
-                    table[n][i][k] = (int) sdh.getPenalty(d, sdh.getBeginAt(), sdh.getOrderedSet());
+                    table[n][i][k] = (int) s.getFitness();
                     k++;
                 }
                 long finish = System.currentTimeMillis();

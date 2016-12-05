@@ -6,6 +6,7 @@
 package br.usp.lti.cdds.core;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  *
@@ -20,7 +21,8 @@ public class Solution {
     protected ArrayList<Job> sequenceOfJobs;
 
     public Solution(ArrayList<Job> sequenceOfJobs) {
-        this.sequenceOfJobs = sequenceOfJobs;
+        this.sequenceOfJobs=new ArrayList<>();
+        Collections.copy(this.sequenceOfJobs , sequenceOfJobs);
         this.beginAt = 0;
         fitness = 0;
     }
@@ -46,7 +48,8 @@ public class Solution {
     }
 
     public void setSequenceOfJobs(ArrayList<Job> sequenceOfJobs) {
-        this.sequenceOfJobs = sequenceOfJobs;
+        this.sequenceOfJobs=new ArrayList<>();
+        Collections.copy(this.sequenceOfJobs , sequenceOfJobs);
     }
 
     public String getOrderAsString() {

@@ -21,10 +21,15 @@ public class Solution {
     protected ArrayList<Job> sequenceOfJobs;
 
     public Solution(ArrayList<Job> sequenceOfJobs) {
-        this.sequenceOfJobs=new ArrayList<>();
-        Collections.copy(this.sequenceOfJobs , sequenceOfJobs);
+        this.sequenceOfJobs=new ArrayList<>(sequenceOfJobs);
         this.beginAt = 0;
         fitness = 0;
+    }
+    
+    public Solution(Solution s) {
+        this.sequenceOfJobs=new ArrayList<>(s.getSequenceOfJobs());
+        this.beginAt = s.getBeginAt();
+        fitness = s.getFitness();
     }
 
     public double getFitness() {
@@ -48,8 +53,7 @@ public class Solution {
     }
 
     public void setSequenceOfJobs(ArrayList<Job> sequenceOfJobs) {
-        this.sequenceOfJobs=new ArrayList<>();
-        Collections.copy(this.sequenceOfJobs , sequenceOfJobs);
+        this.sequenceOfJobs=new ArrayList<>(sequenceOfJobs);
     }
 
     public String getOrderAsString() {

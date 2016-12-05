@@ -1,9 +1,11 @@
 package br.usp.lti.cdds.core;
 
 import br.usp.lti.cdds.util.BetaAlphaComparator;
+import br.usp.lti.cdds.util.JobIDComparator;
 import br.usp.lti.cdds.util.ProcessingTimeAlphaComparator;
 import br.usp.lti.cdds.util.ProcessingTimeBetaComparator;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 
 /*
@@ -86,7 +88,7 @@ public abstract class HeuristicBase {
         Collections.sort(auxSet, new BetaAlphaComparator());
         int processingTimeSum = 0;
         int gap = d - processingTimeSum - begin;
-        while (gap > 0) {
+        while (gap > 0 && auxSet.size() > 0) {
             Job j = auxSet.remove(0);
             ordered.add(j);
             processingTimeSum = problem.getSum_P(ordered);
@@ -138,7 +140,7 @@ public abstract class HeuristicBase {
 
             int processingTimeSum = 0;
             int gap = d - processingTimeSum - currentBegin;
-            while (gap > 0) {
+            while (gap > 0 && myAfter.size() > 0) {
                 Job j = myAfter.remove(0);
                 nowOrder.add(j);
                 processingTimeSum = problem.getSum_P(nowOrder);
@@ -206,5 +208,45 @@ public abstract class HeuristicBase {
             }
         }
         return begin;
+    }
+    
+    protected void repairSolution(Solution s, Solution parent){
+        ArrayList<Job> pJobs=new ArrayList<>(parent.getSequenceOfJobs());
+        ArrayList<Job> sJobs=new ArrayList<>(s.getSequenceOfJobs());
+        this.repairSolution(sJobs, pJobs);
+    }
+    
+    protected void repairSolution(ArrayList<Job> sJobs, ArrayList<Job> parentjobs){
+        ArrayList<Job> jobs=new ArrayList<>(parentjobs);
+        Collections.sort(jobs, new JobIDComparator());
+        int[] missing=new int[jobs.size()];
+        Arrays.fill(missing, 0);
+        for(Job j : sJobs){
+            missing[j.getOrderId()-1]++;
+        }
+        String str=getOrderAsString(sJobs);
+        for(int i=0; i < jobs.size(); i++){
+            while(missing[i] > 1){
+                boolean stop=false;
+                for(int j=0; !stop && j < jobs.size(); j++){
+                    if(missing[j] == 0){
+                        sJobs.set(i, jobs.get(j));
+                        missing[i]--;
+                        missing[j]++;
+                        stop=true;
+                    }
+                }
+                
+            }
+        }
+        str=getOrderAsString(sJobs);
+    }
+    
+    public String getOrderAsString(ArrayList<Job> sequenceOfJobs) {
+        String order = "";
+        for (Job j : sequenceOfJobs) {
+            order += " " + j.getOrderId();
+        }
+        return order.trim();
     }
 }

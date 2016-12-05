@@ -1,6 +1,10 @@
 package br.usp.lti.cdds.core;
 
+import br.usp.lti.cdds.util.BetaAlphaComparator;
+import br.usp.lti.cdds.util.ProcessingTimeAlphaComparator;
+import br.usp.lti.cdds.util.ProcessingTimeBetaComparator;
 import java.util.ArrayList;
+import java.util.Collections;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -14,12 +18,10 @@ import java.util.ArrayList;
 public abstract class HeuristicBase {
 
     protected Problem problem;
-    protected Solution solution;
 
-    public HeuristicBase(Problem problem, ArrayList<Job> toOrder) {
+    public HeuristicBase(Problem problem) {
         this.problem = problem;
-        this.solution = new Solution(toOrder);
-        this.problem.evaluate(solution);
+
     }
 
     protected ArrayList<ArrayList<Job>> split(ArrayList<Job> jobs, int d, int begin) {
@@ -78,14 +80,131 @@ public abstract class HeuristicBase {
         this.problem = problem;
     }
 
-    public Solution getSolution() {
-        return solution;
+    protected ArrayList<ArrayList<Job>> getOrderedTwoSet(ArrayList<Job> toOrder, int d, int begin) {
+        ArrayList<Job> ordered = new ArrayList<>();
+        ArrayList<Job> auxSet = new ArrayList<>(toOrder);
+        Collections.sort(auxSet, new BetaAlphaComparator());
+        int processingTimeSum = 0;
+        int gap = d - processingTimeSum - begin;
+        while (gap > 0) {
+            Job j = auxSet.remove(0);
+            ordered.add(j);
+            processingTimeSum = problem.getSum_P(ordered);
+            gap = d - (processingTimeSum + begin);
+        }
+        while (gap < 0) {
+            Job j = ordered.remove(ordered.size() - 1);
+            auxSet.add(j);
+            processingTimeSum = problem.getSum_P(ordered);
+            gap = d - (processingTimeSum + begin);
+        }
+        Collections.sort(ordered, new ProcessingTimeAlphaComparator());
+        Collections.sort(auxSet, new ProcessingTimeBetaComparator());
+        ArrayList<ArrayList<Job>> toReturn = new ArrayList<>();
+        toReturn.add(ordered);
+        toReturn.add(auxSet);
+        return toReturn;
+    }
+    
+    protected Object[] vshapedSort(ArrayList<Job> sequence, int d) {
+        int begin = this.findBetterBegin(d, sequence, 0);
+        ArrayList<ArrayList<Job>> returned=this.getOrderedTwoSet(sequence, d, begin);
+        return vshapedSort(returned.get(0), returned.get(1), d);
     }
 
-    public void setSolution(Solution solution) {
-        this.solution = solution;
+    protected Object[] vshapedSort(ArrayList<Job> beforeD, ArrayList<Job> afterD, int d) {
+
+        ArrayList<Job> all = new ArrayList<>();
+        Collections.sort(beforeD, new ProcessingTimeAlphaComparator());
+        Collections.sort(afterD, new ProcessingTimeBetaComparator());
+        all.addAll(beforeD);
+        all.addAll(afterD);
+        //int currentBegin =0;
+        int currentBegin = this.findBetterBegin(d, all, 0);
+        int nowBegin = currentBegin;
+        ArrayList<Job> currentOrder = all;
+        ArrayList<Job> nowOrder = all;
+        double currentFitness = problem.getPenalty(d, currentBegin, all);
+        double nowFitness = currentFitness;
+
+        do {
+            if (nowFitness < currentFitness) {
+                currentFitness = nowFitness;
+                currentOrder = nowOrder;
+                currentBegin = nowBegin;
+            }
+            nowOrder = new ArrayList<>(beforeD);
+            ArrayList<Job> myAfter = new ArrayList<>(afterD);
+
+            int processingTimeSum = 0;
+            int gap = d - processingTimeSum - currentBegin;
+            while (gap > 0) {
+                Job j = myAfter.remove(0);
+                nowOrder.add(j);
+                processingTimeSum = problem.getSum_P(nowOrder);
+                gap = d - processingTimeSum - currentBegin;
+            }
+            while (gap < 0) {
+                Job j = nowOrder.remove(nowOrder.size() - 1);
+                myAfter.add(j);
+                processingTimeSum = problem.getSum_P(nowOrder);
+                gap = d - (processingTimeSum + currentBegin);
+            }
+            Collections.sort(nowOrder, new ProcessingTimeAlphaComparator());
+            Collections.sort(myAfter, new ProcessingTimeBetaComparator());
+            nowOrder.addAll(myAfter);
+            nowBegin = this.findBetterBegin(d, nowOrder, currentBegin);
+            nowFitness = problem.getPenalty(d, nowBegin, nowOrder);
+
+        } while (nowFitness < currentFitness);
+        //currentBegin=this.hardfindBetterBegin(currentOrder, d, currentBegin);
+        Object[] toRet = new Object[2];
+        toRet[0] = currentOrder;
+        toRet[1] = currentBegin;
+        return toRet;
     }
 
-    public abstract void method(int d);
+    protected int findBetterBegin(int d, ArrayList<Job> jobs) {
+        return this.findBetterBegin(d, jobs, 0);
+    }
 
+    protected int findBetterBegin(int d, ArrayList<Job> jobs, int currentBegin) {
+        int bg1 = 0;
+        if (currentBegin > 0) {
+            bg1 = this.findBetterBegin(d, jobs, 0, currentBegin);
+        }
+        int bg2 = this.findBetterBegin(d, jobs, currentBegin, d);
+        int bg3 = this.findBetterBegin(d, jobs, 0, d);
+        int fitnessBg1 = (int) problem.getPenalty(d, bg1, jobs);
+        int fitnessBg2 = (int) problem.getPenalty(d, bg2, jobs);
+        int fitnessBg3 = (int) problem.getPenalty(d, bg3, jobs);
+        if (fitnessBg1 < fitnessBg2 && fitnessBg1 < fitnessBg3) {
+            return bg1;
+        } else if (fitnessBg2 < fitnessBg3) {
+            return bg2;
+        } else {
+            return bg3;
+        }
+    }
+
+    protected int findBetterBegin(int d, ArrayList<Job> jobs, int begin, int end) {
+        int fitnessBegin = (int) problem.getPenalty(d, begin, jobs);
+        int fitnessEnd = (int) problem.getPenalty(d, end, jobs);
+        while (begin < end) {
+            int mid = (end - begin) / 2;
+            int fitnessMid = (int) problem.getPenalty(d, mid, jobs);
+            if (fitnessMid < fitnessEnd) {
+                end = mid;
+                fitnessEnd = fitnessMid;
+            } else if (fitnessMid < fitnessBegin) {
+                begin = mid;
+                fitnessBegin = fitnessMid;
+            } else if (fitnessBegin < fitnessEnd) {
+                return begin;
+            } else {
+                return end;
+            }
+        }
+        return begin;
+    }
 }

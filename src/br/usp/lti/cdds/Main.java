@@ -1,6 +1,8 @@
 package br.usp.lti.cdds;
 
-import br.usp.lti.cdds.core.HeuristicBase;
+import br.usp.lti.cdds.heuristics.LocalSearch;
+import br.usp.lti.cdds.heuristics.ConstructionHeuristic;
+import br.usp.lti.cdds.core.OneSolutionImprovementHeuristic;
 import br.usp.lti.cdds.core.Problem;
 import br.usp.lti.cdds.core.ProblemReader;
 import br.usp.lti.cdds.core.Solution;
@@ -24,7 +26,7 @@ public class Main {
         
         for (int i = 0; i < hs.length; i++) {
             
-            HeuristicBase sdh;
+            OneSolutionImprovementHeuristic sdh;
             pr.readDataFromFile();
             int j = 0;
             while (pr.readNextProblem()) {

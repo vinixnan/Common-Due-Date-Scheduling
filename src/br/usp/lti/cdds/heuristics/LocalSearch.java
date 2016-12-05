@@ -3,20 +3,18 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.usp.lti.cdds;
+package br.usp.lti.cdds.heuristics;
 
 import br.usp.lti.cdds.core.Job;
+import br.usp.lti.cdds.core.OneSolutionImprovementHeuristic;
 import br.usp.lti.cdds.core.Problem;
-import br.usp.lti.cdds.util.ProcessingTimeAlphaComparator;
-import br.usp.lti.cdds.util.ProcessingTimeBetaComparator;
 import java.util.ArrayList;
-import java.util.Collections;
 
 /**
  *
  * @author vinicius
  */
-public class LocalSearch extends ConstructionHeuristic {
+public class LocalSearch extends OneSolutionImprovementHeuristic {
 
     public LocalSearch(Problem problem, ArrayList<Job> toOrder) {
         super(problem, toOrder);
@@ -78,61 +76,10 @@ public class LocalSearch extends ConstructionHeuristic {
         return toRet;
     }
 
-    private Object[] vshapedSort(ArrayList<Job> beforeD, ArrayList<Job> afterD, int d) {
-
-        ArrayList<Job> all = new ArrayList<>();
-        Collections.sort(beforeD, new ProcessingTimeAlphaComparator());
-        Collections.sort(afterD, new ProcessingTimeBetaComparator());
-        all.addAll(beforeD);
-        all.addAll(afterD);
-        //int currentBegin =0;
-        int currentBegin = this.findBetterBegin(d, all, 0);
-        int nowBegin = currentBegin;
-        ArrayList<Job> currentOrder = all;
-        ArrayList<Job> nowOrder = all;
-        double currentFitness = problem.getPenalty(d, currentBegin, all);
-        double nowFitness = currentFitness;
-
-        do {
-            if (nowFitness < currentFitness) {
-                currentFitness = nowFitness;
-                currentOrder = nowOrder;
-                currentBegin = nowBegin;
-            }
-            nowOrder = new ArrayList<>(beforeD);
-            ArrayList<Job> myAfter = new ArrayList<>(afterD);
-
-            int processingTimeSum = 0;
-            int gap = d - processingTimeSum - currentBegin;
-            while (gap > 0) {
-                Job j = myAfter.remove(0);
-                nowOrder.add(j);
-                processingTimeSum = problem.getSum_P(nowOrder);
-                gap = d - processingTimeSum - currentBegin;
-            }
-            while (gap < 0) {
-                Job j = nowOrder.remove(nowOrder.size() - 1);
-                myAfter.add(j);
-                processingTimeSum = problem.getSum_P(nowOrder);
-                gap = d - (processingTimeSum + currentBegin);
-            }
-            Collections.sort(nowOrder, new ProcessingTimeAlphaComparator());
-            Collections.sort(myAfter, new ProcessingTimeBetaComparator());
-            nowOrder.addAll(myAfter);
-            nowBegin = this.findBetterBegin(d, nowOrder, currentBegin);
-            nowFitness = problem.getPenalty(d, nowBegin, nowOrder);
-
-        } while (nowFitness < currentFitness);
-        //currentBegin=this.hardfindBetterBegin(currentOrder, d, currentBegin);
-        Object[] toRet = new Object[2];
-        toRet[0] = currentOrder;
-        toRet[1] = currentBegin;
-        return toRet;
-    }
-
     @Override
     public void method(int d) {
-        Object[] toRet = this.sortUsingConstructionMethod(solution.getSequenceOfJobs(), d);
+        ConstructionHeuristic ch = new ConstructionHeuristic(problem, solution.getSequenceOfJobs());
+        Object[] toRet = ch.sortUsingConstructionMethod(solution.getSequenceOfJobs(), d);
         ArrayList<Job> currentSet = (ArrayList<Job>) toRet[0];
         int currentBegin = (int) toRet[1];
         Object[] searchResult = this.localSearch(currentSet, d, currentBegin);

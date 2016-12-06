@@ -1,1 +1,0 @@
-java -Xms512m -Xmx512m -cp dist/Common-Due-Date-Scheduling.jar br.usp.lti.cdds.MainCompleteMH 500 0.9 0.1 OnePointCrossover SwapMutation > result/saida_500_0.9_0.1_OnePointCrossover_SwapMutation 2> result/erros_500_0.9_0.1_OnePointCrossover_SwapMutation

@@ -2,7 +2,6 @@ package br.usp.lti.cdds;
 
 import br.usp.lti.cdds.heuristics.LocalSearch;
 import br.usp.lti.cdds.heuristics.ConstructionHeuristic;
-import br.usp.lti.cdds.core.HeuristicBase;
 import br.usp.lti.cdds.core.OneSolutionImprovementHeuristic;
 import br.usp.lti.cdds.core.Problem;
 import br.usp.lti.cdds.core.ProblemReader;
@@ -45,7 +44,7 @@ public class MainComplete {
                 while (pr.readNextProblem()) {
                     sums[n][k] = Problem.getSum_P(pr.getCurrentProblem());
                     int d = (int) Math.round(sums[n][k] * h);
-                    Problem problem = new Problem(d, h);
+                    Problem problem=new Problem(d, h, pr.getCurrentProblem());
                     if (type == 1) {
                         sdh = new ConstructionHeuristic(problem, pr.getCurrentProblem());
                     } else {

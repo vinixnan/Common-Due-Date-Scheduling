@@ -5,8 +5,11 @@
  */
 package br.usp.lti.cdds.core;
 
+import br.usp.lti.cdds.util.JobIDComparator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 
 /**
  *
@@ -16,10 +19,15 @@ public class Problem {
 
     private int d;
     private double h;
+    private int size;
+    private ArrayList<Job> listOfJobs;//just a list of jobs to fix solutions
 
-    public Problem(int d, double h) {
+    public Problem(int d, double h, ArrayList<Job> listOfJobs) {
         this.d = d;
         this.h = h;
+        this.listOfJobs = new ArrayList<>(listOfJobs);
+        Collections.sort(listOfJobs, new JobIDComparator());
+        this.size = this.listOfJobs.size();
     }
 
     public double getH() {
@@ -76,9 +84,68 @@ public class Problem {
         s.setFitness(fitness);
     }
 
+    public void repairSolution(Solution s) {
+        this.repairSolution(s.getSequenceOfJobs());
+    }
+
+    public void repairSolution(ArrayList<Job> sJobs) {
+        HashMap<Job, Integer> qtds = new HashMap<>();
+        for (int i = 0; i < listOfJobs.size(); i++) {
+            Job j = listOfJobs.get(i);
+            qtds.put(j, Collections.frequency(sJobs, j));
+        }
+
+        for (int i = 0; i < listOfJobs.size(); i++) {
+            Job currentPresent = listOfJobs.get(i);
+            while (qtds.get(currentPresent) > 1) {
+                boolean stop = false;
+                for (int j = 0; !stop && j < listOfJobs.size(); j++) {
+                    Job currentAbsent = listOfJobs.get(j);
+                    if (qtds.get(currentAbsent) == 0) {
+                        int pos = sJobs.lastIndexOf(currentPresent);
+                        sJobs.set(pos, currentAbsent);
+                        qtds.put(currentAbsent, 1);
+                        qtds.put(currentPresent, qtds.get(currentPresent) - 1);
+                        stop = true;
+                        //System.out.println(getOrderAsString(sJobs));
+                    }
+                }
+
+            }
+        }
+        qtds = new HashMap<>();
+        for (int i = 0; i < listOfJobs.size(); i++) {
+            Job j = listOfJobs.get(i);
+            qtds.put(j, Collections.frequency(sJobs, j));
+        }
+    }
+
     public double getSum_P(Solution s) {
         return this.getSum_P(s.getSequenceOfJobs());
     }
 
-    
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
+
+    public ArrayList<Job> getListOfJobs() {
+        return listOfJobs;
+    }
+
+    public void setListOfJobs(ArrayList<Job> listOfJobs) {
+        this.listOfJobs = listOfJobs;
+    }
+
+    public String getOrderAsString(ArrayList<Job> sequenceOfJobs) {
+        String order = "";
+        for (Job j : sequenceOfJobs) {
+            order += " " + j.getOrderId();
+        }
+        return order.trim();
+    }
+
 }

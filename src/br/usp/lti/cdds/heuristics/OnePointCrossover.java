@@ -40,16 +40,22 @@ public class OnePointCrossover extends CrossoverBase {
             offspring2.add(parent1Sequence.get(i));
         }
         //offspring 1
-        this.repairSolution(offspring1, parent1Sequence);
-        this.repairSolution(offspring2, parent2Sequence);
-        System.err.println(offspring1.size()+" "+offspring2.size());
+        //System.out.println("Before fix " +this.getOrderAsString(offspring1));
+        this.problem.repairSolution(offspring1);
+        //System.out.println("After  fix " +this.getOrderAsString(offspring1));
+        //System.out.println(this.getOrderAsString(offspring2));
+        this.problem.repairSolution(offspring2);
+        //System.out.println(this.getOrderAsString(offspring2));
+        
         Object[] returned = this.vshapedSort(offspring1, problem.getD());
         toReturn[0] = new Solution((ArrayList<Job>) returned[0]);
         toReturn[0].setBeginAt((int) returned[1]);
+        //System.out.println("After sort " +toReturn[0].getOrderAsString());
         //ofspring 2
         returned = this.vshapedSort(offspring2, problem.getD());
         toReturn[1] = new Solution((ArrayList<Job>) returned[0]);
         toReturn[1].setBeginAt((int) returned[1]);
+        //System.out.println(toReturn[1].getOrderAsString());
         return toReturn;
     }
 

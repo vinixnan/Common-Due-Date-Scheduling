@@ -210,38 +210,6 @@ public abstract class HeuristicBase {
         return begin;
     }
     
-    protected void repairSolution(Solution s, Solution parent){
-        ArrayList<Job> pJobs=new ArrayList<>(parent.getSequenceOfJobs());
-        ArrayList<Job> sJobs=new ArrayList<>(s.getSequenceOfJobs());
-        this.repairSolution(sJobs, pJobs);
-    }
-    
-    protected void repairSolution(ArrayList<Job> sJobs, ArrayList<Job> parentjobs){
-        ArrayList<Job> jobs=new ArrayList<>(parentjobs);
-        Collections.sort(jobs, new JobIDComparator());
-        int[] missing=new int[jobs.size()];
-        Arrays.fill(missing, 0);
-        for(Job j : sJobs){
-            missing[j.getOrderId()-1]++;
-        }
-        String str=getOrderAsString(sJobs);
-        for(int i=0; i < jobs.size(); i++){
-            while(missing[i] > 1){
-                boolean stop=false;
-                for(int j=0; !stop && j < jobs.size(); j++){
-                    if(missing[j] == 0){
-                        sJobs.set(i, jobs.get(j));
-                        missing[i]--;
-                        missing[j]++;
-                        stop=true;
-                    }
-                }
-                
-            }
-        }
-        str=getOrderAsString(sJobs);
-    }
-    
     public String getOrderAsString(ArrayList<Job> sequenceOfJobs) {
         String order = "";
         for (Job j : sequenceOfJobs) {

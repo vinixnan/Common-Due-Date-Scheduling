@@ -13,10 +13,19 @@ public class MainCompleteMH {
 
         int[] sizes = {10, 20, 50, 100, 200, 500, 1000};
         double[] hs = {0.2, 0.4, 0.6, 0.8};
-        int populationSize=100;
-        int maxEvaluations=600;
-        double crossProbability=0.95;
-        double mutationProbability=0.1;
+        int populationSize;//10+raiz de N floor
+        int maxGenerations = 100;//10000
+        double crossProbability = 0.9;//0.4
+        double mutationProbability = 0.1;//0.8
+        String crossType="OnePointCrossover";
+        String mutaType="SwapMutation";
+        if (args.length == 5) {
+            maxGenerations = Integer.parseInt(args[0]);
+            crossProbability = Double.parseDouble(args[1]);
+            mutationProbability = Double.parseDouble(args[2]);
+            crossType=args[3];
+            mutaType=args[4];
+        }
 
         int[][][] table = new int[sizes.length][hs.length][10];
         long[][] times = new long[sizes.length][hs.length];
@@ -24,6 +33,8 @@ public class MainCompleteMH {
         int[][][] bench = new int[sizes.length][10][hs.length];
         for (int n = 0; n < sizes.length; n++) {
             int size = sizes[n];
+            populationSize = (int) (10.0 + Math.floor(Math.sqrt(size)));
+            System.out.println(populationSize);
             String benchmark = "bench/bench" + size + ".csv";
             //benchmark = "csv/saida_" + size + "_const.csv";
             System.out.println(benchmark);
@@ -37,9 +48,10 @@ public class MainCompleteMH {
                 while (pr.readNextProblem()) {
                     sums[n][k] = Problem.getSum_P(pr.getCurrentProblem());
                     int d = (int) Math.round(sums[n][k] * h);
-                    Problem problem = new Problem(d, h);
-                    GeneticAlgorithm sdh=new GeneticAlgorithm(problem, populationSize, maxEvaluations, crossProbability, mutationProbability);
+                    Problem problem = new Problem(d, h, pr.getCurrentProblem());
+                    GeneticAlgorithm sdh = new GeneticAlgorithm(problem, populationSize, maxGenerations, crossProbability, mutationProbability, crossType, mutaType);
                     Solution s = sdh.execute(pr.getCurrentProblem());
+                    //System.out.println(s.getOrderAsString());
                     table[n][i][k] = (int) s.getFitness();
                     k++;
                 }

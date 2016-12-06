@@ -11,10 +11,13 @@ import br.usp.lti.cdds.core.Job;
 import br.usp.lti.cdds.core.MutationBase;
 import br.usp.lti.cdds.core.Problem;
 import br.usp.lti.cdds.core.Solution;
+import br.usp.lti.cdds.heuristics.BitFlipMutationBackward;
+import br.usp.lti.cdds.heuristics.BitFlipMutationFoward;
 import br.usp.lti.cdds.heuristics.ConstructionHeuristic;
 import br.usp.lti.cdds.heuristics.OnePointCrossover;
 import br.usp.lti.cdds.heuristics.RandomHeuristic;
 import br.usp.lti.cdds.heuristics.SwapMutation;
+import br.usp.lti.cdds.heuristics.TwoPointCrossover;
 import br.usp.lti.cdds.util.SolutionComparator;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,18 +30,22 @@ import java.util.Random;
 public class GeneticAlgorithm {
 
     private ArrayList<Solution> population;
-    private Problem problem;
-    private int populationSize;
-    private int maxEvaluations;
-    private double crossProbability;
-    private double mutationProbability;
+    private final Problem problem;
+    private final int populationSize;
+    private final int maxGenerations;
+    private final double crossProbability;
+    private final double mutationProbability;
+    private final String crossType;
+    private final String mutaType;
 
-    public GeneticAlgorithm(Problem problem, int populationSize, int maxEvaluations, double crossProbability, double mutationProbability) {
+    public GeneticAlgorithm(Problem problem, int populationSize, int maxGenerations, double crossProbability, double mutationProbability, String crossType, String mutaType) {
         this.problem = problem;
         this.populationSize = populationSize;
-        this.maxEvaluations = maxEvaluations;
+        this.maxGenerations = maxGenerations;
         this.crossProbability = crossProbability;
         this.mutationProbability = mutationProbability;
+        this.crossType = crossType;
+        this.mutaType = mutaType;
     }
 
     private void initPopulation(ArrayList<Job> toOrder) {
@@ -56,17 +63,45 @@ public class GeneticAlgorithm {
         }
     }
 
+    private CrossoverBase getCrossover() {
+        switch (this.crossType) {
+            case "MAB":
+                //call MAB method
+                break;
+            case "OnePointCrossover":
+                return new OnePointCrossover(problem);
+            case "TwoPointCrossover":
+                return new TwoPointCrossover(problem);
+        }
+        return null;
+    }
+
+    private MutationBase getMutation() {
+        switch (this.mutaType) {
+            case "MAB":
+                //call MAB method
+                break;
+            case "SwapMutation":
+                return new SwapMutation(problem);
+            case "BitFlipMutationBackward":
+                return new BitFlipMutationBackward(problem);
+            case "BitFlipMutationFoward":
+                return new BitFlipMutationFoward(problem);
+        }
+        return null;
+    }
+
     public Solution execute(ArrayList<Job> toOrder) {
         this.initPopulation(toOrder);
-        int eval = populationSize;
+        int gen = 1;
         CrossoverBase crossover;
         MutationBase mutation;
-        crossover = new OnePointCrossover(problem);
-        mutation = new SwapMutation(problem);
         Random rdn = new Random();
         ArrayList<Solution> offspringPopulation;
         Collections.sort(this.population, new SolutionComparator());
-        while (eval < this.maxEvaluations) {
+        while (gen < this.maxGenerations) {
+            crossover = this.getCrossover();
+            mutation = this.getMutation();
             offspringPopulation = new ArrayList<>();
             offspringPopulation.add(new Solution(population.get(0)));
             offspringPopulation.add(new Solution(population.get(1)));
@@ -92,7 +127,7 @@ public class GeneticAlgorithm {
             }
             this.population = offspringPopulation;
             Collections.sort(this.population, new SolutionComparator());
-            eval += 2;
+            gen++;
         }
         return this.population.get(0);
     }

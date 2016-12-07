@@ -1,14 +1,14 @@
 #!/bin/bash
 generation=500
 allcross="0.9 0.4"
-allmuta="0.1 0.8 0.05"
-max=5
+allmuta="0.1 0.8"
+max=2
 
 allcrossType="OnePointCrossover TwoPointCrossover"
 allmutaType="SwapMutation BitFlipMutationBackward BitFlipMutationFoward"
 
 #allcrossType="OnePointCrossover"
-#allmutaType="SwapMutation"
+allmutaType="SwapMutation"
 
 rm -f "run.txt"
 for crossType in $allcrossType
@@ -31,5 +31,5 @@ do
     done
 done
 
-cat "run.txt" | xargs -I CMD -P 3 bash -c CMD &
+cat "run.txt" | xargs -I CMD -P 8 bash -c CMD &
 wait

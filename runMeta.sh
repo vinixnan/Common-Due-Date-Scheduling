@@ -1,5 +1,5 @@
 #!/bin/bash
-generation=500
+generation=1000
 allcross="0.9 0.4"
 allmuta="0.1 0.8"
 max=2

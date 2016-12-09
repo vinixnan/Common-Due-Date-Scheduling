@@ -11,8 +11,8 @@ public class MainCompleteMH {
 
     public static void main(String[] args) {
 
-        //int[] sizes = {10, 20, 50, 100, 200, 500, 1000};
-        int[] sizes = {10, 20};
+        int[] sizes = {10, 20, 50, 100, 200, 500, 1000};
+        //int[] sizes = {10, 20};
         double[] hs = {0.2, 0.4, 0.6, 0.8};
         int populationSize;//10+raiz de N floor
         int maxGenerations = 500;//10000

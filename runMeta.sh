@@ -1,13 +1,13 @@
 #!/bin/bash
 generation=1000
 allcross="1.0"
-allmuta="0.5 0.2"
+allmuta="0.5"
 max=2
 
 allcrossType="PMXCrossover OnePointCrossover TwoPointCrossover"
 allmutaType="SwapMutation BitFlipMutationBackward BitFlipMutationFoward SwapMutationInternalBefore SwapMutationInternalAfter"
 
-#allcrossType="OnePointCrossover"
+allcrossType="PMXCrossover"
 allmutaType="SwapMutation"
 
 rm -f "run.txt"
@@ -24,12 +24,12 @@ do
 					saida="result/saida_"$generation"_"$cross"_"$muta"_"$crossType"_"$mutaType"_"$i
 					erros="result/erros_"$generation"_"$cross"_"$muta"_"$crossType"_"$mutaType"_"$i
 					#echo $saida
-					echo "java -Xms512m -Xmx512m -cp dist/Common-Due-Date-Scheduling.jar br.usp.lti.cdds.MainCompleteMH $generation $cross $muta $crossType $mutaType > $saida 2> $erros" >> "run.txt"
+					echo "java -Xms1024m -Xmx1024m -cp dist/Common-Due-Date-Scheduling.jar br.usp.lti.cdds.MainCompleteMH $generation $cross $muta $crossType $mutaType > $saida 2> $erros" >> "run.txt"
 				done
             done
         done
     done
 done
 
-cat "run.txt" | xargs -I CMD -P 4 bash -c CMD &
+cat "run.txt" | xargs -I CMD -P 8 bash -c CMD &
 wait

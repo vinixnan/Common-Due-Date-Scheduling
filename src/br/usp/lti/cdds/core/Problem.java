@@ -89,39 +89,39 @@ public class Problem {
     }
 
     public void repairSolution(ArrayList<Job> sJobs) {
+        while(sJobs.size() > this.listOfJobs.size()){
+            sJobs.remove(sJobs.size()-1);
+        }
+        while(sJobs.size() < this.listOfJobs.size()){
+            sJobs.add(sJobs.get(sJobs.size()-1));
+        }
         HashMap<Job, Integer> qtds = new HashMap<>();
+        ArrayList<Job> repeated = new ArrayList<>();
+        ArrayList<Job> notFound = new ArrayList<>();
         for (int i = 0; i < listOfJobs.size(); i++) {
             Job j = listOfJobs.get(i);
-            qtds.put(j, Collections.frequency(sJobs, j));
-        }
-
-        for (int i = 0; i < listOfJobs.size(); i++) {
-            Job currentPresent = listOfJobs.get(i);
-            while (qtds.get(currentPresent) > 1) {
-                boolean stop = false;
-                for (int j = 0; !stop && j < listOfJobs.size(); j++) {
-                    Job currentAbsent = listOfJobs.get(j);
-                    if (qtds.get(currentAbsent) == 0) {
-                        int pos = sJobs.lastIndexOf(currentPresent);
-                        sJobs.set(pos, currentAbsent);
-                        qtds.put(currentAbsent, 1);
-                        qtds.put(currentPresent, qtds.get(currentPresent) - 1);
-                        stop = true;
-                        //System.out.println(getOrderAsString(sJobs));
-                    }
-                }
-
+            int frequency = Collections.frequency(sJobs, j);
+            qtds.put(j, frequency);
+            if (frequency == 0) {
+                notFound.add(j);
+            } else if (frequency > 1) {
+                repeated.add(j);
             }
         }
-        qtds = new HashMap<>();
-        for (int i = 0; i < listOfJobs.size(); i++) {
-            Job j = listOfJobs.get(i);
-            qtds.put(j, Collections.frequency(sJobs, j));
+
+        for (int i = 0; i < repeated.size(); i++) {
+            Job presentMoreThanOnce = repeated.get(i);
+            int qtdPresent = qtds.get(presentMoreThanOnce);
+            while (qtdPresent > 1) {
+                int pos = sJobs.lastIndexOf(presentMoreThanOnce);
+                sJobs.set(pos, notFound.remove(notFound.size() - 1));
+                qtdPresent--;
+            }
         }
     }
 
     public double getSum_P(Solution s) {
-        return this.getSum_P(s.getSequenceOfJobs());
+        return Problem.getSum_P(s.getSequenceOfJobs());
     }
 
     public int getSize() {

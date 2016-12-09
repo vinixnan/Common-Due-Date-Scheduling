@@ -16,9 +16,9 @@ import java.util.Random;
  *
  * @author vinicius
  */
-public class BitFlipMutationFoward extends MutationBase {
+public class SwapMutationInternalAfter extends MutationBase {
 
-    public BitFlipMutationFoward(Problem problem) {
+    public SwapMutationInternalAfter(Problem problem) {
         super(problem);
     }
 
@@ -27,13 +27,19 @@ public class BitFlipMutationFoward extends MutationBase {
         ArrayList<ArrayList<Job>> splitted = this.split(s.getSequenceOfJobs(), problem.getD(), s.getBeginAt());
         ArrayList<Job> beforeD = splitted.get(0);
         ArrayList<Job> afterD = splitted.get(1);
-        Random rdn = new Random();
-        if(beforeD.size() > 0){
-            int pos1 = rdn.nextInt(beforeD.size());
-            Job one = beforeD.remove(pos1);
-            afterD.add(one);
-            this.vshapedSort(beforeD, afterD);
-            ArrayList<Job> joined = new ArrayList<>(beforeD);
+        if (afterD.size() > 1) {
+            Random rdn = new Random();
+            int pos1 = rdn.nextInt(afterD.size());
+            int pos2 = rdn.nextInt(afterD.size());
+            while(pos1==pos2){
+                pos2 = rdn.nextInt(afterD.size());
+            }
+            Job beforeElement = afterD.get(pos1);
+            Job afterElement = afterD.get(pos2);
+            afterD.set(pos1, afterElement);
+            afterD.set(pos2, beforeElement);
+            
+            ArrayList<Job> joined=new ArrayList<>(beforeD);
             joined.addAll(afterD);
             int begin = s.getBeginAt();
             begin = this.findBetterBegin(problem.getD(), joined, begin);

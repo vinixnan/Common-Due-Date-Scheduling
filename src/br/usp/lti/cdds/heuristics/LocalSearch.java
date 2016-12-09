@@ -39,7 +39,7 @@ public class LocalSearch extends OneSolutionImprovementHeuristic {
             Job j = myBefore.remove(i);
             myAfter.add(j);
             //MOVEMENT
-            Object[] returned = this.vshapedSort(myBefore, myAfter, d);
+            Object[] returned = this.vshapedSortIterative(myBefore, myAfter, d);
             allgenerated.add((ArrayList<Job>) returned[0]);
             allbegins.add((Integer) returned[1]);
         }
@@ -52,7 +52,7 @@ public class LocalSearch extends OneSolutionImprovementHeuristic {
             Job j = myAfter.remove(i);
             myBefore.add(j);
             //movement
-            Object[] returned = this.vshapedSort(myBefore, myAfter, d);
+            Object[] returned = this.vshapedSortIterative(myBefore, myAfter, d);
             allgenerated.add((ArrayList<Job>) returned[0]);
             allbegins.add((Integer) returned[1]);
         }

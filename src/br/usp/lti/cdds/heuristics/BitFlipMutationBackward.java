@@ -16,7 +16,7 @@ import java.util.Random;
  *
  * @author vinicius
  */
-public class BitFlipMutationBackward  extends MutationBase{
+public class BitFlipMutationBackward extends MutationBase {
 
     public BitFlipMutationBackward(Problem problem) {
         super(problem);
@@ -27,13 +27,20 @@ public class BitFlipMutationBackward  extends MutationBase{
         ArrayList<ArrayList<Job>> splitted = this.split(s.getSequenceOfJobs(), problem.getD(), s.getBeginAt());
         ArrayList<Job> beforeD = splitted.get(0);
         ArrayList<Job> afterD = splitted.get(1);
-        Random rdn=new Random();
-        int pos2=rdn.nextInt(afterD.size());
-        Job other=afterD.remove(pos2);
-        beforeD.add(other);
-        Object[] returned=this.vshapedSort(beforeD, afterD, problem.getD());
-        s.setSequenceOfJobs((ArrayList<Job>) returned[0]);
-        s.setBeginAt((int) returned[1]);
+        Random rdn = new Random();
+        if(afterD.size() > 0){
+            int pos2 = rdn.nextInt(afterD.size());
+            Job other = afterD.remove(pos2);
+            beforeD.add(other);
+            this.vshapedSort(beforeD, afterD);
+            ArrayList<Job> joined = new ArrayList<>(beforeD);
+            joined.addAll(afterD);
+            int begin = s.getBeginAt();
+            begin = this.findBetterBegin(problem.getD(), joined, begin);
+            s.setSequenceOfJobs(joined);
+            s.setBeginAt(begin);
+        }
+
     }
-    
+
 }

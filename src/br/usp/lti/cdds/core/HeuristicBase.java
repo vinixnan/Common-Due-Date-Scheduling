@@ -1,11 +1,9 @@
 package br.usp.lti.cdds.core;
 
 import br.usp.lti.cdds.util.BetaAlphaComparator;
-import br.usp.lti.cdds.util.JobIDComparator;
 import br.usp.lti.cdds.util.ProcessingTimeAlphaComparator;
 import br.usp.lti.cdds.util.ProcessingTimeBetaComparator;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 
 /*
@@ -108,13 +106,13 @@ public abstract class HeuristicBase {
         return toReturn;
     }
     
-    protected Object[] vshapedSort(ArrayList<Job> sequence, int d) {
+    public Object[] vshapedSortIteractive(ArrayList<Job> sequence, int d) {
         int begin = this.findBetterBegin(d, sequence, 0);
         ArrayList<ArrayList<Job>> returned=this.getOrderedTwoSet(sequence, d, begin);
-        return vshapedSort(returned.get(0), returned.get(1), d);
+        return vshapedSortIterative(returned.get(0), returned.get(1), d);
     }
 
-    protected Object[] vshapedSort(ArrayList<Job> beforeD, ArrayList<Job> afterD, int d) {
+    public Object[] vshapedSortIterative(ArrayList<Job> beforeD, ArrayList<Job> afterD, int d) {
 
         ArrayList<Job> all = new ArrayList<>();
         Collections.sort(beforeD, new ProcessingTimeAlphaComparator());
@@ -165,6 +163,10 @@ public abstract class HeuristicBase {
         toRet[1] = currentBegin;
         return toRet;
     }
+    
+    public  void fixBeginOfSolution(Solution s){
+        s.setBeginAt(this.findBetterBegin(problem.getD(), s.getSequenceOfJobs()));
+    }
 
     protected int findBetterBegin(int d, ArrayList<Job> jobs) {
         return this.findBetterBegin(d, jobs, 0);
@@ -208,6 +210,39 @@ public abstract class HeuristicBase {
             }
         }
         return begin;
+    }
+    
+    public void solutionVshapedSort(Solution s) {
+        int d=problem.getD();
+        int begin=s.getBeginAt();
+        begin = this.findBetterBegin(d, s.getSequenceOfJobs(), begin);
+        ArrayList<Job> before = new ArrayList<>();
+        ArrayList<Job> after = new ArrayList<>(s.getSequenceOfJobs());
+        
+        int processingTimeSum = 0;
+        int gap = d - processingTimeSum - begin;
+        while (gap > 0) {
+            Job j = after.remove(0);
+            before.add(j);
+            processingTimeSum = Problem.getSum_P(before);
+            gap = d - (processingTimeSum + begin);
+        }
+        while (gap < 0) {
+            Job j = before.remove(before.size() - 1);
+            after.add(j);
+            processingTimeSum = Problem.getSum_P(before);
+            gap = d - (processingTimeSum + begin);
+        }
+        this.vshapedSort(before, after);
+        before.addAll(after);
+        begin = this.findBetterBegin(d, before, begin);
+        s.setSequenceOfJobs(before);
+        s.setBeginAt(begin);
+    }
+    
+    protected void vshapedSort(ArrayList<Job> before, ArrayList<Job> after) {
+        Collections.sort(before, new ProcessingTimeAlphaComparator());
+        Collections.sort(after, new ProcessingTimeBetaComparator());
     }
     
     public String getOrderAsString(ArrayList<Job> sequenceOfJobs) {

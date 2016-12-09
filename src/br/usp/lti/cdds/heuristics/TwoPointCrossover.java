@@ -48,20 +48,10 @@ public class TwoPointCrossover extends CrossoverBase {
             offspring1.add(parent1Sequence.get(i));
             offspring2.add(parent2Sequence.get(i));
         }
-        //System.out.println(this.getOrderAsString(offspring1));
         this.problem.repairSolution(offspring1);
-        //System.out.println(this.getOrderAsString(offspring1));
-        //System.out.println(this.getOrderAsString(offspring2));
+        toReturn[0] = new Solution(offspring1);
         this.problem.repairSolution(offspring2);
-        //System.out.println(this.getOrderAsString(offspring2));
-        //offspring 1
-        Object[] returned = this.vshapedSort(offspring1, problem.getD());
-        toReturn[0] = new Solution((ArrayList<Job>) returned[0]);
-        toReturn[0].setBeginAt((int) returned[1]);
-        //ofspring 2
-        returned = this.vshapedSort(offspring2, problem.getD());
-        toReturn[1] = new Solution((ArrayList<Job>) returned[0]);
-        toReturn[1].setBeginAt((int) returned[1]);
+        toReturn[1] = new Solution(offspring2);
         return toReturn;
     }
 

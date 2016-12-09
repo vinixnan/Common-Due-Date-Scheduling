@@ -28,6 +28,8 @@ public class RandomHeuristic extends HeuristicBase {
     public Solution method() {
         Solution s = new Solution(this.toOrder);
         Collections.shuffle(s.getSequenceOfJobs());
+        //this.fixBeginOfSolution(s);
+        //this.solutionVshapedSort(s);
         return s;
     }
 

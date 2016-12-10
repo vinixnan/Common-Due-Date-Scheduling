@@ -42,10 +42,7 @@ public class SwapMutationInternalBefore extends MutationBase {
             
             ArrayList<Job> joined=new ArrayList<>(beforeD);
             joined.addAll(afterD);
-            int begin = s.getBeginAt();
-            begin = this.findBetterBegin(problem.getD(), joined, begin);
             s.setSequenceOfJobs(joined);
-            s.setBeginAt(begin);
         }
     }
 

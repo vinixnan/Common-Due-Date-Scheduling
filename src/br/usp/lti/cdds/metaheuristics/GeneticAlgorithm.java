@@ -14,7 +14,6 @@ import br.usp.lti.cdds.core.Solution;
 import br.usp.lti.cdds.heuristics.BitFlipMutationBackward;
 import br.usp.lti.cdds.heuristics.BitFlipMutationFoward;
 import br.usp.lti.cdds.heuristics.ConstructionHeuristic;
-import br.usp.lti.cdds.heuristics.LocalSearch;
 import br.usp.lti.cdds.heuristics.OnePointCrossover;
 import br.usp.lti.cdds.heuristics.OnePointCrossoverInternalAfter;
 import br.usp.lti.cdds.heuristics.OnePointCrossoverInternalBefore;
@@ -24,6 +23,8 @@ import br.usp.lti.cdds.heuristics.SwapMutation;
 import br.usp.lti.cdds.heuristics.SwapMutationInternalAfter;
 import br.usp.lti.cdds.heuristics.SwapMutationInternalBefore;
 import br.usp.lti.cdds.heuristics.TwoPointCrossover;
+import br.usp.lti.cdds.hyperheuristic.LowLevelHeuristic;
+import br.usp.lti.cdds.hyperheuristic.MAB;
 import br.usp.lti.cdds.util.SolutionComparator;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,6 +45,7 @@ public class GeneticAlgorithm {
     private final double percentTaking;
     private final String crossType;
     private final String mutaType;
+    private MAB hh;
 
     public GeneticAlgorithm(Problem problem, int populationSize, int maxGenerations, double crossProbability, double mutationProbability, String crossType, String mutaType, double percentTaking) {
         this.problem = problem;
@@ -54,6 +56,8 @@ public class GeneticAlgorithm {
         this.crossType = crossType;
         this.mutaType = mutaType;
         this.percentTaking = percentTaking;
+        this.hh=new MAB(5, 150);
+        this.hh.generateLLH(problem);
     }
 
     private void initPopulation(ArrayList<Job> toOrder) {
@@ -129,16 +133,28 @@ public class GeneticAlgorithm {
         switch (id) {
             case 0:
                 return new SwapMutation(problem);
-            case 1:
-                return new SwapMutationInternalBefore(problem);
-            case 2:
-                return new SwapMutationInternalAfter(problem);
             case 3:
-                return new BitFlipMutationBackward(problem);
+                return new SwapMutationInternalBefore(problem);
             case 4:
+                return new SwapMutationInternalAfter(problem);
+            case 1:
+                return new BitFlipMutationBackward(problem);
+            case 2:
                 return new BitFlipMutationFoward(problem);
         }
         return null;
+    }
+    
+    private double calcQuality(Solution parent1, Solution parent2, Solution[] offspring){
+        Solution bestParent=parent1;
+        if(parent2.getFitness() < bestParent.getFitness()){
+            bestParent=parent2;
+        }
+        Solution bestOffspring=offspring[0];
+        if(offspring[1].getFitness() < bestOffspring.getFitness()){
+            bestOffspring=offspring[1];
+        }
+        return (bestParent.getFitness()-bestOffspring.getFitness())/bestParent.getFitness();
     }
 
     public Solution execute(ArrayList<Job> toOrder) {
@@ -146,6 +162,7 @@ public class GeneticAlgorithm {
         int gen = 1;
         CrossoverBase crossover = this.getCrossover();
         MutationBase mutation = this.getMutation();
+        RandomHeuristic rd=new RandomHeuristic(problem, toOrder);
         Random rdn = new Random();
         ArrayList<Solution> offspringPopulation;
         Collections.sort(this.population, new SolutionComparator());
@@ -159,7 +176,9 @@ public class GeneticAlgorithm {
                 Solution parent1 = BinaryTournament.select(population);
                 Solution parent2 = BinaryTournament.select(population);
                 Solution[] offspring;
-                if (rdn.nextDouble() <= this.crossProbability) {
+                LowLevelHeuristic llh=this.hh.selectionMethod();
+                crossover=llh.getCross();
+                if (rdn.nextDouble() <= this.crossProbability && crossover!=null) {
                     offspring = crossover.method(parent1, parent2);
                     //crossover.solutionVshapedSort(offspring[0]);
                     //crossover.solutionVshapedSort(offspring[1]);
@@ -169,17 +188,19 @@ public class GeneticAlgorithm {
                     offspring[1] = parent2;
                 }
                 for (Solution s : offspring) {
-                    if (rdn.nextDouble() <= this.mutationProbability) {
-                        //int muta = rdn.nextInt(1);
-                        //mutation = this.getMutation(muta);
+                    mutation=llh.getMutation();
+                    if (rdn.nextDouble() <= this.mutationProbability && mutation!=null) {
                         mutation.method(s);
                         //crossover.solutionVshapedSort(s);
                     }
-                    crossover.solutionVshapedSort(s);
-                    //crossover.vshapedSortIteractive(s.getSequenceOfJobs(), problem.getD());
+                    if(!(mutation instanceof SwapMutationInternalAfter || mutation instanceof SwapMutationInternalBefore)){
+                        rd.solutionVshapedSort(s);
+                    }
                     problem.evaluate(s);
                     offspringPopulation.add(s);
                 }
+                double quality=this.calcQuality(parent1, parent2, offspring);
+                this.hh.addMetric(llh, quality);
             }
             /*
             ArrayList<Solution> joined = new ArrayList<>(this.population);
@@ -203,6 +224,8 @@ public class GeneticAlgorithm {
              */
             this.population = offspringPopulation;
             Collections.sort(this.population, new SolutionComparator());
+            Solution s = this.population.get(0);
+            //add to sliding window
             gen++;
             //System.out.println(gen);
         }

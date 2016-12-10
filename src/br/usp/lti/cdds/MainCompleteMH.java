@@ -20,7 +20,7 @@ public class MainCompleteMH {
         double mutationProbability = 0.5;//0.8
         double parcel=1;
         String crossType="PMXCrossover";
-        String mutaType="SwapMutation";
+        String mutaType="SwapMutationInternalBefore";
         //BitFlipMutationFoward
         //crossType="TwoPointCrossover";
         //mutaType="SwapMutationInternalBefore";

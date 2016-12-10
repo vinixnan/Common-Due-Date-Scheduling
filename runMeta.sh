@@ -1,7 +1,7 @@
 #!/bin/bash
 generation=1000
 allcross="1.0"
-allmuta="0.5"
+allmuta="0.5 1.0"
 max=2
 
 allcrossType="PMXCrossover OnePointCrossover TwoPointCrossover"
@@ -9,6 +9,7 @@ allmutaType="SwapMutation BitFlipMutationBackward BitFlipMutationFoward SwapMuta
 
 allcrossType="PMXCrossover"
 allmutaType="SwapMutation"
+#com MAB tanto faz, o MAB ta configurado com C=5 e sl=150
 
 rm -f "run.txt"
 for crossType in $allcrossType

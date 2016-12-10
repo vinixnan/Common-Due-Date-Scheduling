@@ -35,10 +35,7 @@ public class BitFlipMutationFoward extends MutationBase {
             this.vshapedSort(beforeD, afterD);
             ArrayList<Job> joined = new ArrayList<>(beforeD);
             joined.addAll(afterD);
-            int begin = s.getBeginAt();
-            begin = this.findBetterBegin(problem.getD(), joined, begin);
             s.setSequenceOfJobs(joined);
-            s.setBeginAt(begin);
         }
     }
 

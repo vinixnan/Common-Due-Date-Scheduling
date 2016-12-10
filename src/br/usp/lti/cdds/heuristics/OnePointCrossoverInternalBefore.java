@@ -62,8 +62,6 @@ public class OnePointCrossoverInternalBefore extends CrossoverBase {
             offspring2 = parent1Sequence;
         }
         
-        System.out.println(offspring1.size()+" "+offspring2.size());
-
         this.problem.repairSolution(offspring1);
         toReturn[0] = new Solution(offspring1);
         this.solutionVshapedSort(toReturn[0]);

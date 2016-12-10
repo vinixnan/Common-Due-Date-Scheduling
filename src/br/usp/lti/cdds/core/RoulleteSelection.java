@@ -5,6 +5,8 @@
  */
 package br.usp.lti.cdds.core;
 
+import com.google.common.primitives.Doubles;
+import com.google.common.primitives.Ints;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -14,20 +16,29 @@ import java.util.Random;
  */
 public class RoulleteSelection {
     public static Solution select(ArrayList<Solution> solutionSet){
-        //solutionSet must arrive sort
         double[] prob=new double[solutionSet.size()];
-        double sum=0.0;
-        int[] roullete=new int[100];
-        //taking values and sum
         for(int i=0; i < prob.length; i++){
-            sum+=solutionSet.get(i).getFitness();
             prob[i]=solutionSet.get(i).getFitness();
         }
-        //prepare roullete
-        int roulletepos=0;
+        double min=Doubles.min(prob);
+        double max=Doubles.max(prob);
+        double sum=0;
         for(int i=0; i < prob.length; i++){
-            prob[i]=1.0-(prob[i]/sum);
-            int roulletepart= (int) (prob[i]*100);
+           prob[i]=(max-prob[i])/(max-min);
+           sum+=prob[i];
+        }
+        
+        for(int i=0; i < prob.length; i++){
+           prob[i]=prob[i]/sum;
+        }
+        
+        //prepare roullete
+        int[] roullete=new int[100];
+        int roulletepos=0;
+        
+        
+        for(int i=0; i < prob.length; i++){
+            double roulletepart=Math.round(prob[i]*100.0);
             for(int k=0; k < roulletepart && roulletepos < roullete.length;k++){
                 roullete[roulletepos++]=i;
             }

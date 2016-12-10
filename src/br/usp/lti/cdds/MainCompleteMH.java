@@ -18,19 +18,20 @@ public class MainCompleteMH {
         int maxGenerations = 500;//10000
         double crossProbability = 1;//0.4
         double mutationProbability = 0.5;//0.8
-        double parcel=1;
+        double parcel=0.9;
         String crossType="PMXCrossover";
-        String mutaType="SwapMutationInternalBefore";
+        String mutaType="SwapMutation";
         //BitFlipMutationFoward
         //crossType="TwoPointCrossover";
         //mutaType="SwapMutationInternalBefore";
         //crossType="OnePointCrossoverInternalBefore";
-        if (args.length == 5) {
+        if (args.length == 6) {
             maxGenerations = Integer.parseInt(args[0]);
             crossProbability = Double.parseDouble(args[1]);
             mutationProbability = Double.parseDouble(args[2]);
             crossType=args[3];
             mutaType=args[4];
+            parcel = Double.parseDouble(args[5]);
         }
 
         int[][][] table = new int[sizes.length][hs.length][10];

@@ -10,6 +10,7 @@ import br.usp.lti.cdds.core.CrossoverBase;
 import br.usp.lti.cdds.core.Job;
 import br.usp.lti.cdds.core.MutationBase;
 import br.usp.lti.cdds.core.Problem;
+import br.usp.lti.cdds.core.RoulleteSelection;
 import br.usp.lti.cdds.core.Solution;
 import br.usp.lti.cdds.heuristics.BitFlipMutationBackward;
 import br.usp.lti.cdds.heuristics.BitFlipMutationFoward;
@@ -170,11 +171,11 @@ public class GeneticAlgorithm {
             //int cross = rdn.nextInt(1);
             //crossover = this.getCrossover(cross);
             offspringPopulation = new ArrayList<>();
-            offspringPopulation.add(new Solution(population.get(0)));
-            offspringPopulation.add(new Solution(population.get(1)));
+            //offspringPopulation.add(new Solution(population.get(0)));
+            //offspringPopulation.add(new Solution(population.get(1)));
             for (int i = 0; i < (populationSize / 2 - 1); i++) {
-                Solution parent1 = BinaryTournament.select(population);
-                Solution parent2 = BinaryTournament.select(population);
+                Solution parent1 = RoulleteSelection.select(population);
+                Solution parent2 = RoulleteSelection.select(population);
                 Solution[] offspring;
                 LowLevelHeuristic llh=this.hh.selectionMethod();
                 crossover=llh.getCross();
@@ -202,27 +203,26 @@ public class GeneticAlgorithm {
                 double quality=this.calcQuality(parent1, parent2, offspring);
                 this.hh.addMetric(llh, quality);
             }
-            /*
+            
             ArrayList<Solution> joined = new ArrayList<>(this.population);
             joined.addAll(offspringPopulation);
             Collections.sort(joined, new SolutionComparator());
             this.population = new ArrayList<>();
-            int max = (int) (populationSize * percentTaking);
-            for (int i = 0; i < max; i++) {
-                this.population.add(joined.get(i));
+            int limit=(int) (this.populationSize*this.percentTaking);
+            int i=0;
+            while(i < limit){
+                population.add(new Solution(joined.remove(i)));
+                i++;
             }
-            for (int i = 0; i < max; i++) {
-                joined.remove(0);
+            
+            while (i < populationSize) {
+                Solution selected=RoulleteSelection.select(joined);
+                joined.remove(selected);
+                this.population.add(selected);
+                i++;
             }
-            while (max < populationSize) {
-                int sort = rdn.nextInt(joined.size());
-
-                this.population.add(joined.remove(sort));
-                max++;
-
-            }
-             */
-            this.population = offspringPopulation;
+            
+            //this.population = offspringPopulation;
             Collections.sort(this.population, new SolutionComparator());
             Solution s = this.population.get(0);
             //add to sliding window

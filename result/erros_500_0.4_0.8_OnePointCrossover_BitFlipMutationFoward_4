@@ -1,0 +1,5 @@
+Exception in thread "main" java.lang.IllegalArgumentException: bound must be positive
+	at java.util.Random.nextInt(Random.java:388)
+	at br.usp.lti.cdds.heuristics.BitFlipMutationFoward.method(BitFlipMutationFoward.java:31)
+	at br.usp.lti.cdds.metaheuristics.GeneticAlgorithm.execute(GeneticAlgorithm.java:121)
+	at br.usp.lti.cdds.MainCompleteMH.main(MainCompleteMH.java:53)

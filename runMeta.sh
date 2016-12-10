@@ -31,5 +31,5 @@ do
     done
 done
 
-cat "run.txt" | xargs -I CMD -P 8 bash -c CMD &
+cat "run.txt" | xargs -I CMD -P 3 bash -c CMD &
 wait

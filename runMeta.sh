@@ -1,7 +1,7 @@
 #!/bin/bash
 generation=1000
 allcross="1.0"
-allmuta="0.5 1.0"
+allmuta="0.5"
 parcels="0.9 0.5"
 max=2
 
@@ -34,5 +34,5 @@ do
     done
 done
 
-cat "run.txt" | xargs -I CMD -P 3 bash -c CMD &
+cat "run.txt" | xargs -I CMD -P 4 bash -c CMD &
 wait

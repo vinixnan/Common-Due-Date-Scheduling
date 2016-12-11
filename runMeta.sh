@@ -2,14 +2,14 @@
 generation=1000
 allcross="1.0"
 allmuta="0.5"
-parcels="0.9 0.5"
+parcels="0.9"
 max=2
 
 allcrossType="PMXCrossover OnePointCrossover TwoPointCrossover"
 allmutaType="SwapMutation BitFlipMutationBackward BitFlipMutationFoward SwapMutationInternalBefore SwapMutationInternalAfter"
 
 allcrossType="PMXCrossover"
-allmutaType="SwapMutation"
+allmutaType="SwapMutation BitFlipMutation"
 crossType="PMXCrossover"
 #com MAB tanto faz, o MAB ta configurado com C=5 e sl=150
 
@@ -34,5 +34,5 @@ do
     done
 done
 
-cat "run.txt" | xargs -I CMD -P 4 bash -c CMD &
+cat "run.txt" | xargs -I CMD -P 3 bash -c CMD &
 wait

@@ -15,15 +15,15 @@ public class MainCompleteMH {
         //int[] sizes = {10, 20};
         double[] hs = {0.2, 0.4, 0.6, 0.8};
         int populationSize;//10+raiz de N floor
-        int maxGenerations = 500;//10000
-        double crossProbability = 1;//0.4
+        int maxGenerations = 10000;//10000
+        double crossProbability = 1.0;//0.4
         double mutationProbability = 0.5;//0.8
         double parcel=0.9;
         String crossType="PMXCrossover";
         String mutaType="SwapMutation";
         //BitFlipMutationFoward
         //crossType="TwoPointCrossover";
-        //mutaType="SwapMutationInternalBefore";
+        mutaType="SwapMutation";
         //crossType="OnePointCrossoverInternalBefore";
         if (args.length == 6) {
             maxGenerations = Integer.parseInt(args[0]);
@@ -40,8 +40,8 @@ public class MainCompleteMH {
         int[][][] bench = new int[sizes.length][10][hs.length];
         for (int n = 0; n < sizes.length; n++) {
             int size = sizes[n];
-            populationSize = (int) (10.0 + Math.floor(Math.sqrt(size)));
-            populationSize=100;
+            populationSize = (int) (2*(10.0 + Math.floor(Math.sqrt(size))));
+            //populationSize=100;
             System.out.println(populationSize);
             String benchmark = "bench/bench" + size + ".csv";
             //benchmark = "csv/saida_" + size + "_const.csv";
@@ -57,7 +57,7 @@ public class MainCompleteMH {
                     sums[n][k] = Problem.getSum_P(pr.getCurrentProblem());
                     int d = (int) Math.round(sums[n][k] * h);
                     Problem problem = new Problem(d, h, pr.getCurrentProblem());
-                    GeneticAlgorithm sdh = new GeneticAlgorithm(problem, populationSize, maxGenerations, crossProbability, mutationProbability, crossType, mutaType, parcel);
+                    GeneticAlgorithm sdh = new GeneticAlgorithm(problem, populationSize, maxGenerations, crossProbability, mutationProbability, crossType, mutaType);
                     Solution s = sdh.execute(pr.getCurrentProblem());
                     //System.out.println(s.getOrderAsString());
                     table[n][i][k] = (int) s.getFitness();

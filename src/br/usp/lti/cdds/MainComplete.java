@@ -1,6 +1,6 @@
 package br.usp.lti.cdds;
 
-import br.usp.lti.cdds.heuristics.LocalSearch;
+import br.usp.lti.cdds.localsearch.LocalSearch;
 import br.usp.lti.cdds.heuristics.ConstructionHeuristic;
 import br.usp.lti.cdds.core.OneSolutionImprovementHeuristic;
 import br.usp.lti.cdds.core.Problem;

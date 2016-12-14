@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.usp.lti.cdds.core;
+package br.usp.lti.cdds.metaheuristics;
 
+import br.usp.lti.cdds.core.Solution;
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
 import java.util.ArrayList;

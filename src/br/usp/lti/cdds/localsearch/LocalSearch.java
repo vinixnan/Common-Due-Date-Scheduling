@@ -3,11 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.usp.lti.cdds.heuristics;
+package br.usp.lti.cdds.localsearch;
 
 import br.usp.lti.cdds.core.Job;
 import br.usp.lti.cdds.core.OneSolutionImprovementHeuristic;
 import br.usp.lti.cdds.core.Problem;
+import br.usp.lti.cdds.heuristics.ConstructionHeuristic;
 import java.util.ArrayList;
 
 /**

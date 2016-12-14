@@ -37,7 +37,7 @@ public class ConstructionHeuristic extends OneSolutionImprovementHeuristic {
 
     
 
-    protected Object[] sortUsingConstructionMethod(ArrayList<Job> currentOrder, int d) {
+    public Object[] sortUsingConstructionMethod(ArrayList<Job> currentOrder, int d) {
         ArrayList<Job> nowOrder = currentOrder;
         int currentBegin = this.findBetterBegin(d, nowOrder, 0);
         int nowBegin = currentBegin;

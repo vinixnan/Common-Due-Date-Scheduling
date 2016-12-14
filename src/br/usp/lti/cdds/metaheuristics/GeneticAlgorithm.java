@@ -9,22 +9,18 @@ import br.usp.lti.cdds.core.CrossoverBase;
 import br.usp.lti.cdds.core.Job;
 import br.usp.lti.cdds.core.MutationBase;
 import br.usp.lti.cdds.core.Problem;
-import br.usp.lti.cdds.core.RoulleteSelection;
 import br.usp.lti.cdds.core.Solution;
 import br.usp.lti.cdds.heuristics.BitFlipMutation;
 import br.usp.lti.cdds.heuristics.BitFlipMutationBackward;
 import br.usp.lti.cdds.heuristics.BitFlipMutationFoward;
 import br.usp.lti.cdds.heuristics.ConstructionHeuristic;
 import br.usp.lti.cdds.heuristics.OnePointCrossover;
-import br.usp.lti.cdds.heuristics.OnePointCrossoverInternalAfter;
-import br.usp.lti.cdds.heuristics.OnePointCrossoverInternalBefore;
 import br.usp.lti.cdds.heuristics.PMXCrossover;
 import br.usp.lti.cdds.heuristics.RandomHeuristic;
 import br.usp.lti.cdds.heuristics.SwapMutation;
 import br.usp.lti.cdds.heuristics.SwapMutationInternalAfter;
 import br.usp.lti.cdds.heuristics.SwapMutationInternalBefore;
 import br.usp.lti.cdds.heuristics.TwoPointCrossover;
-import br.usp.lti.cdds.hyperheuristic.LowLevelHeuristic;
 import br.usp.lti.cdds.util.SolutionComparator;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -79,10 +75,6 @@ public class GeneticAlgorithm {
                 return new OnePointCrossover(problem);
             case "TwoPointCrossover":
                 return new TwoPointCrossover(problem);
-            case "OnePointCrossoverInternalBefore":
-                return new OnePointCrossoverInternalBefore(problem);
-            case "OnePointCrossoverInternalAfter":
-                return new OnePointCrossoverInternalAfter(problem);
 
         }
         return null;
@@ -96,10 +88,6 @@ public class GeneticAlgorithm {
                 return new OnePointCrossover(problem);
             case 2:
                 return new TwoPointCrossover(problem);
-            case 3:
-                return new OnePointCrossoverInternalBefore(problem);
-            case 4:
-                return new OnePointCrossoverInternalAfter(problem);
 
         }
         return null;

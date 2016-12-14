@@ -64,4 +64,11 @@ public class Job {
     public double processingBeta(){
         return ((double)this.processingTime)/((double)this.tardiness);
     }
+
+    @Override
+    public String toString() {
+        return "Job{" + "processingTime=" + processingTime + ", earliness=" + earliness + ", tardiness=" + tardiness + ", orderId=" + orderId + '}';
+    }
+    
+    
 }

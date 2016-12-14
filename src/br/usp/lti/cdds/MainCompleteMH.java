@@ -12,10 +12,10 @@ public class MainCompleteMH {
     public static void main(String[] args) {
 
         int[] sizes = {10, 20, 50, 100, 200, 500, 1000};
-        //int[] sizes = {10, 20};
+        //int[] sizes = {10};
         double[] hs = {0.2, 0.4, 0.6, 0.8};
         int populationSize;//10+raiz de N floor
-        int maxGenerations = 10000;//10000
+        int maxGenerations = 1000;//10000
         double crossProbability = 1.0;//0.4
         double mutationProbability = 0.5;//0.8
         double parcel=0.9;
@@ -54,12 +54,17 @@ public class MainCompleteMH {
                 long begin = System.currentTimeMillis();
                 int k = 0;
                 while (pr.readNextProblem()) {
+                    //System.out.println("h="+h+" k="+(k+1));
                     sums[n][k] = Problem.getSum_P(pr.getCurrentProblem());
                     int d = (int) Math.round(sums[n][k] * h);
                     Problem problem = new Problem(d, h, pr.getCurrentProblem());
                     GeneticAlgorithm sdh = new GeneticAlgorithm(problem, populationSize, maxGenerations, crossProbability, mutationProbability, crossType, mutaType);
                     Solution s = sdh.execute(pr.getCurrentProblem());
                     //System.out.println(s.getOrderAsString());
+                    //System.out.println(s.getBeginAt());
+                    //System.out.println(s.getFitness());
+                    //System.out.println(s.getAsString());
+                    //System.out.println("");
                     table[n][i][k] = (int) s.getFitness();
                     k++;
                 }

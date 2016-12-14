@@ -3,7 +3,7 @@ generation=1000
 allcross="1.0"
 allmuta="0.5"
 parcels="0.9"
-max=2
+max=8
 
 allcrossType="PMXCrossover OnePointCrossover TwoPointCrossover"
 allmutaType="SwapMutation BitFlipMutationBackward BitFlipMutationFoward SwapMutationInternalBefore SwapMutationInternalAfter"
@@ -11,7 +11,6 @@ allmutaType="SwapMutation BitFlipMutationBackward BitFlipMutationFoward SwapMuta
 allcrossType="PMXCrossover"
 allmutaType="SwapMutation BitFlipMutation"
 crossType="PMXCrossover"
-#com MAB tanto faz, o MAB ta configurado com C=5 e sl=150
 
 rm -f "run.txt"
 for parcel in $parcels

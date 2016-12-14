@@ -37,7 +37,7 @@ public class PMXCrossover extends CrossoverBase {
         ArrayList<Job> parent1Vector = p1.getSequenceOfJobs();
         ArrayList<Job> parent2Vector = p2.getSequenceOfJobs();
         ArrayList<Job> offspring1Vector = offspring[0].getSequenceOfJobs();
-        ArrayList<Job> offspring2Vector = offspring[0].getSequenceOfJobs();
+        ArrayList<Job> offspring2Vector = offspring[1].getSequenceOfJobs();
 
         int cuttingPoint1;
         int cuttingPoint2;

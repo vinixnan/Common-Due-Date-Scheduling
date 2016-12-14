@@ -63,4 +63,12 @@ public class Solution {
         }
         return order.trim();
     }
+    
+    public String getAsString() {
+        String order = "";
+        for (Job j : this.sequenceOfJobs) {
+            order += " " + j.toString();
+        }
+        return order.trim();
+    }
 }

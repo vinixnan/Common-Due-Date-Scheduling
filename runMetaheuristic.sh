@@ -9,7 +9,7 @@ allcrossType="PMXCrossover OnePointCrossover TwoPointCrossover"
 allmutaType="SwapMutation BitFlipMutationBackward BitFlipMutationFoward SwapMutationInternalBefore SwapMutationInternalAfter"
 
 allcrossType="PMXCrossover"
-allmutaType="SwapMutation BitFlipMutation"
+allmutaType="SwapMutation"
 crossType="PMXCrossover"
 
 rm -f "run.txt"

@@ -32,7 +32,7 @@ public class Main {
             while (pr.readNextProblem()) {
                 double h = hs[i];
                 sums[j] = Problem.getSum_P(pr.getCurrentProblem());
-                int d = (int) Math.round(sums[j] * h);
+                int d = (int) Math.floor(sums[j] * h);
                 Problem problem=new Problem(d, h, pr.getCurrentProblem());
                 if (type == 1) {
                     sdh = new ConstructionHeuristic(problem, pr.getCurrentProblem());

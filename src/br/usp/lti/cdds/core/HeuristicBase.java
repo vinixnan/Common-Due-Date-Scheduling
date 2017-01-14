@@ -60,7 +60,7 @@ public abstract class HeuristicBase {
     public void printStatus(Solution s) {
         ArrayList<Job> jobs = s.getSequenceOfJobs();
         double SUM_P = problem.getSum_P(s);
-        int d = (int) Math.round(SUM_P * problem.getH());
+        int d = (int) Math.floor(SUM_P * problem.getH());
         double minSum = s.getFitness(); //a fazer: mtodo que calcula a penalidade dos jobs
         ArrayList<ArrayList<Job>> splitted = this.split(jobs, d, s.getBeginAt());
         ArrayList<Job> before = splitted.get(0);

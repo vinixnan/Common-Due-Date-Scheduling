@@ -15,7 +15,7 @@ public class MainComplete {
 
         int[] sizes = {10, 20, 50, 100, 200, 500, 1000};
         double[] hs = {0.2, 0.4, 0.6, 0.8};
-        int type = 2;//1 construction 2 local search
+        int type = 1;//1 construction 2 local search
 
         if (args.length == 1) {
             type = Integer.parseInt(args[0]);
@@ -43,7 +43,7 @@ public class MainComplete {
                 int k = 0;
                 while (pr.readNextProblem()) {
                     sums[n][k] = Problem.getSum_P(pr.getCurrentProblem());
-                    int d = (int) Math.round(sums[n][k] * h);
+                    int d = (int) Math.floor(sums[n][k] * h);
                     Problem problem=new Problem(d, h, pr.getCurrentProblem());
                     if (type == 1) {
                         sdh = new ConstructionHeuristic(problem, pr.getCurrentProblem());

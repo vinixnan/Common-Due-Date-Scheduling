@@ -12,7 +12,7 @@ public class MainCompleteMH {
     public static void main(String[] args) {
 
         int[] sizes = {10, 20, 50, 100, 200, 500, 1000};
-        //int[] sizes = {10};
+        //int[] sizes = {10, 20, 50};
         double[] hs = {0.2, 0.4, 0.6, 0.8};
         int populationSize;//10+raiz de N floor
         int maxGenerations = 1000;//10000
@@ -56,7 +56,7 @@ public class MainCompleteMH {
                 while (pr.readNextProblem()) {
                     //System.out.println("h="+h+" k="+(k+1));
                     sums[n][k] = Problem.getSum_P(pr.getCurrentProblem());
-                    int d = (int) Math.round(sums[n][k] * h);
+                    int d = (int) Math.floor(sums[n][k] * h);
                     Problem problem = new Problem(d, h, pr.getCurrentProblem());
                     GeneticAlgorithm sdh = new GeneticAlgorithm(problem, populationSize, maxGenerations, crossProbability, mutationProbability, crossType, mutaType);
                     Solution s = sdh.execute(pr.getCurrentProblem());
